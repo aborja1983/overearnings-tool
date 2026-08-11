@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Utility Over-Earnings Tool</title>
+<style>
+  :root{
+    --navy:#1F3864; --blue:#2E5496; --link:#0563C1; --ink:#1a1a1a; --muted:#5f6b7a;
+    --line:#e2e6ee; --bg:#f6f8fc; --card:#ffffff; --hi:#0e7c66; --warn:#8A5A00; --red:#b03a2e;
+    --bar:#2E5496; --barhi:#0e7c66; --barneg:#c98a1e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 60px}
+  h1{font-size:30px;color:var(--navy);margin:0 0 6px}
+  .sub{color:var(--blue);font-size:17px;margin:0 0 4px}
+  .lede{color:var(--muted);font-size:14px;margin:0 0 22px;max-width:760px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px;box-shadow:0 1px 2px rgba(20,40,80,.04)}
+  .row{display:flex;flex-wrap:wrap;gap:16px}
+  .controls{align-items:flex-end}
+  label{display:block;font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px}
+  select{font-size:16px;padding:9px 12px;border:1px solid #c7cede;border-radius:8px;background:#fff;min-width:260px}
+  .toggle{display:inline-flex;border:1px solid #c7cede;border-radius:8px;overflow:hidden}
+  .toggle button{border:0;background:#fff;padding:9px 14px;font-size:14px;cursor:pointer;color:var(--blue)}
+  .toggle button.active{background:var(--navy);color:#fff}
+  .hero{display:flex;flex-wrap:wrap;align-items:center;gap:26px}
+  .bignum{font-size:46px;font-weight:800;color:var(--hi);line-height:1}
+  .bignum.neg{color:var(--barneg)}
+  .bigcap{font-size:13px;color:var(--muted);margin-top:6px;max-width:230px}
+  .break{display:flex;gap:26px;flex-wrap:wrap}
+  .kv{font-size:13px;color:var(--muted)}
+  .kv b{display:block;font-size:20px;color:var(--ink);font-weight:700}
+  .sliders{display:flex;flex-wrap:wrap;gap:28px}
+  .slider{flex:1;min-width:230px}
+  input[type=range]{width:100%}
+  .sval{font-weight:700;color:var(--navy)}
+  .note{font-size:12px;color:var(--muted)}
+  a{color:var(--link)}
+  .bars{margin-top:6px}
+  .barrow{display:grid;grid-template-columns:170px 1fr 92px;align-items:center;gap:10px;margin:5px 0;font-size:13px}
+  .barname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+  .bartrack{background:#eef1f7;border-radius:5px;height:20px;position:relative}
+  .barfill{height:20px;border-radius:5px;background:var(--bar)}
+  .barfill.hi{background:var(--barhi)}
+  .barfill.neg{background:var(--barneg)}
+  .barval{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+  th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+  th{background:var(--navy);color:#fff;font-weight:600;text-align:right;position:sticky;top:0}
+  th:first-child,td:first-child{text-align:left}
+  tr.sel td{background:#eafaf4}
+  .na{color:#aab}
+  details{margin-top:6px}
+  summary{cursor:pointer;font-weight:700;color:var(--blue)}
+  .primer p{font-size:14px;margin:8px 0}
+  .primer b{color:var(--navy)}
+  .foot{font-size:12px;color:var(--muted);margin-top:8px}
+  .flag{background:#fff7e6;border-left:4px solid #e0a030;padding:10px 12px;font-size:12.5px;color:#5A4000;border-radius:6px;margin-top:10px}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;background:#eef1f7;color:var(--blue);margin-left:8px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Is your utility over-earning?</h1>
+  <div class="sub">What the law says a utility should earn for its risk — versus what it's allowed to charge you.</div>
+  <p class="lede">The governing legal standard (<i>Bluefield</i> 1923, <i>Hope</i> 1944) says a utility's return should match the risk it actually bears. These are monopolies with captive customers — unusually low-risk — yet regulators grant returns set for a far riskier business. This tool measures the gap, and what it costs. <b>Investor-owned utilities only</b> (municipals and co-ops don't earn a set return). Every figure is sourced; the numbers move when you change the assumptions.</p>
+
+  <div class="panel">
+    <div class="row controls">
+      <div>
+        <label>View</label>
+        <div class="toggle" id="toggle">
+          <button data-mode="A" class="active">Authorized vs. risk-justified</button>
+          <button data-mode="B">Earned vs. authorized</button>
+        </div>
+      </div>
+      <div>
+        <label>Utility</label>
+        <select id="pick"></select>
+      </div>
+    </div>
+    <div class="hero" id="hero" style="margin-top:18px"></div>
+    <div class="flag" id="rowflag" style="display:none"></div>
+  </div>
+
+  <div class="panel">
+    <label>Assumptions — drag to test your own (this is what makes the estimate honest)</label>
+    <div class="sliders">
+      <div class="slider">
+        <div class="note">Risk-free rate (10-yr Treasury): <span class="sval" id="rfv"></span></div>
+        <input type="range" id="rf" min="2" max="6" step="0.1" value="4.3">
+        <div class="note"><b>What it is:</b> what a totally safe investment — a U.S. government bond — pays. It's the floor every return builds on. Update from <a href="https://fred.stlouisfed.org/series/DGS10" target="_blank" rel="noopener">FRED DGS10</a>.</div>
+      </div>
+      <div class="slider">
+        <div class="note">Equity risk premium: <span class="sval" id="erpv"></span></div>
+        <input type="range" id="erp" min="3" max="7" step="0.1" value="5.0">
+        <div class="note"><b>What it is:</b> the extra return investors expect for buying stocks instead of safe bonds. A standard published estimate — utilities will argue this number.</div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:12px"><b>Putting it together:</b> Risk-justified ROE = risk-free rate + (the utility's <b>beta</b> &times; equity risk premium). <b>Beta</b> is how risky the market thinks a company is: the whole stock market scores 1.0; a beta of 0.30 means the stock is about a third as volatile — very safe. Utilities have low betas, so the market itself says they deserve <i>low</i> returns. That's the number this tool checks the authorized return against.</div>
+  </div>
+
+  <div class="panel">
+    <label id="charttitle"></label>
+    <div class="bars" id="bars"></div>
+    <div class="note" id="total" style="margin-top:12px;font-weight:700;color:var(--navy)"></div>
+  </div>
+
+  <div class="panel" style="overflow:auto">
+    <label>All eight utilities</label>
+    <table id="tbl"></table>
+  </div>
+
+  <div class="panel primer">
+    <details>
+      <summary>How this works (plain language)</summary>
+      <p><b>A utility is a monopoly.</b> One company owns the poles and wires; you can't shop for another. So a state commission sets what it can charge.</p>
+      <p><b>The bargain.</b> The utility invests billions in the grid; in return, regulators let it recover its costs and earn a profit. The fight is over how much profit is fair.</p>
+      <p><b>Rate base &amp; ROE.</b> The utility earns a profit rate — the return on equity, or ROE — on the shareholder money invested in the grid (its "rate base"). Roughly: yearly profit &asymp; equity share of rate base &times; ROE.</p>
+      <p><b>Why it's the battleground.</b> ROE is a judgment call, usually ~9.5–10%. Because it multiplies a multibillion-dollar rate base, a tenth of a percent is millions of dollars a year — on your bill.</p>
+      <p><b>The catch.</b> A monopoly with captive customers is unusually safe, and safe should mean low returns. This tool measures the gap between the return utilities are granted and what their real, low risk would justify.</p>
+      <p><b>The three terms in the sliders.</b> <b>Risk-free rate</b> = what a totally safe U.S. government bond pays (the floor). <b>Beta</b> = how risky the market thinks a company is (the whole market = 1.0; utilities run ~0.3–0.7, i.e. safer than average). <b>Equity risk premium</b> = the extra return investors want for owning stocks over safe bonds. A "risk-justified" return = the safe floor plus a company's risk (beta) times that premium — so a low-risk utility earns a low justified return.</p>
+    </details>
+  </div>
+
+  <div class="foot">
+    <b>Caveats.</b> Risk-free rate and equity risk premium are adjustable assumptions (defaults are placeholders). Betas are parent-company, point-in-time. Rate-base figures vary by vintage/jurisdiction; Georgia Power's is pre-Vogtle and conservative. PG&amp;E and SCE earned-ROE are omitted (only non-comparable parent-GAAP figures available). "Over-earning" here means <i>authorized return above the risk-justified return</i> — the <i>Bluefield/Hope</i> test — not that utilities always collect more than allowed (the earned-vs-authorized view shows several under-earn their authorized ROE).<br>
+    <b>Sources.</b> Per-value citations in <a href="data/sources.md">data/sources.md</a>; raw data in <a href="data/utility_dataset.csv">data/utility_dataset.csv</a>. Legal standard: <i>Bluefield Waterworks v. PSC</i>, 262 U.S. 679 (1923); <i>FPC v. Hope Natural Gas</i>, 320 U.S. 591 (1944). Cross-check: Energy &amp; Policy Institute, <i>Paying for Their Profits</i>.
+  </div>
+</div>
+
+<script>
+const U = [
+ {name:"Pacific Gas & Electric", parent:"PCG", cust:5500000, roe:0.0998, rb:69.0, eq:0.52, beta:0.27, earned:null, note:"Earned: only parent-GAAP available (~9.7%), not comparable — omitted."},
+ {name:"Southern California Edison", parent:"EIX", cust:5000000, roe:0.1003, rb:47.6, eq:0.52, beta:0.67, earned:null, note:"Earned parent-GAAP wildfire-distorted — omitted."},
+ {name:"Florida Power & Light", parent:"NEE", cust:5900000, roe:0.1095, rb:75.1, eq:0.596, beta:0.58, earned:0.118, note:"Settlement 2026–29; ROE midpoint 10.95%. High equity ratio (59.6%)."},
+ {name:"Georgia Power", parent:"SO", cust:2804000, roe:0.105, rb:20.78, eq:0.56, beta:0.34, earned:0.1369, note:"Rate base is FY2020, PRE-VOGTLE — understates; over-earning shown is a conservative floor."},
+ {name:"Duke Energy Carolinas", parent:"DUK", cust:2900000, roe:0.1010, rb:19.1, eq:0.53, beta:0.45, earned:0.0728, note:"Earned 7.28% is SC jurisdiction — under-earned its authorized ROE."},
+ {name:"Commonwealth Edison", parent:"EXC", cust:4000000, roe:0.08905, rb:13.8, eq:0.50, beta:0.51, earned:0.091, note:"Distribution-only; low authorized ROE (8.9%). Earned = Exelon consolidated proxy."},
+ {name:"Consolidated Edison (CECONY)", parent:"ED", cust:3600000, roe:0.0940, rb:32.9, eq:0.48, beta:0.39, earned:0.0921, note:"Electric-only rate base."},
+ {name:"Dominion Energy Virginia", parent:"D", cust:2700000, roe:0.0980, rb:13.8, eq:0.52035, beta:0.66, earned:0.0906, note:"Rate base = Virginia-base estimate; equity/ROE from SCC 2025 order."}
+];
+
+let mode="A", sel=0;
+const $=id=>document.getElementById(id);
+const pct=x=>(x*100).toFixed(2)+"%";
+const money0=x=>"$"+Math.round(x).toLocaleString();
+const moneyM=x=>"$"+Math.round(x).toLocaleString()+"M";
+
+function rf(){return parseFloat($("rf").value)/100;}
+function erp(){return parseFloat($("erp").value)/100;}
+
+function calc(u){
+  const riskJust = rf() + u.beta*erp();
+  const gap = u.roe - riskJust;
+  const eqRB = u.rb!=null ? u.rb*u.eq : null;          // $B
+  const oeM = eqRB!=null ? gap*eqRB*1000 : null;       // $M/yr
+  const perCust = eqRB!=null ? gap*eqRB*1e9/u.cust : null; // $/yr
+  const eDiff = u.earned!=null ? u.earned - u.roe : null;  // pts
+  const eDollarM = (u.earned!=null && eqRB!=null) ? eDiff*eqRB*1000 : null;
+  return {riskJust,gap,eqRB,oeM,perCust,eDiff,eDollarM};
+}
+
+function fillPicker(){
+  const s=$("pick"); s.innerHTML="";
+  U.forEach((u,i)=>{const o=document.createElement("option");o.value=i;o.textContent=u.name;s.appendChild(o);});
+  s.value=sel;
+}
+
+function renderHero(){
+  const u=U[sel], c=calc(u), h=$("hero"), f=$("rowflag");
+  if(mode==="A"){
+    if(c.perCust==null){h.innerHTML="<div>No rate-base data for this utility yet.</div>";return;}
+    h.innerHTML=`
+      <div>
+        <div class="bignum ${c.perCust<0?'neg':''}">${money0(c.perCust)}</div>
+        <div class="bigcap">per customer, per year — the over-earning ${u.name} collects above a risk-justified return</div>
+      </div>
+      <div class="break">
+        <div class="kv">Total over-earning<b>${moneyM(c.oeM)}/yr</b></div>
+        <div class="kv">Authorized ROE<b>${pct(u.roe)}</b></div>
+        <div class="kv">Risk-justified ROE<b>${pct(c.riskJust)}</b></div>
+        <div class="kv">Gap<b>${(c.gap*100).toFixed(2)} pts</b></div>
+      </div>`;
+  } else {
+    if(u.earned==null){
+      h.innerHTML=`<div><div class="bignum na">n/a</div><div class="bigcap">No comparable earned-ROE figure for ${u.name} (only non-comparable parent-GAAP available).</div></div>`;
+    } else {
+      const over=c.eDiff>=0;
+      h.innerHTML=`
+        <div>
+          <div class="bignum ${over?'':'neg'}">${over?'+':''}${(c.eDiff*100).toFixed(2)} pts</div>
+          <div class="bigcap">${over?'earned ABOVE':'earned BELOW'} its authorized ROE ${over?'(over-earning its own allowance)':'(under-earning — collected less than allowed)'}</div>
+        </div>
+        <div class="break">
+          <div class="kv">Earned ROE<b>${pct(u.earned)}</b></div>
+          <div class="kv">Authorized ROE<b>${pct(u.roe)}</b></div>
+          <div class="kv">$ vs. authorized<b>${c.eDollarM!=null?(c.eDollarM>=0?'':'−')+moneyM(Math.abs(c.eDollarM)):'—'}/yr</b></div>
+        </div>`;
+    }
+  }
+  f.style.display="block"; f.textContent=u.note;
+}
+
+function renderBars(){
+  const rows=U.map((u,i)=>({i,u,c:calc(u)}));
+  let title, val, fmt, hasval;
+  if(mode==="A"){ title="Over-earning per customer ($/yr) — bigger bar, bigger premium on your bill";
+    val=r=>r.c.perCust; fmt=v=>v==null?'n/a':money0(v); }
+  else { title="Earned minus authorized ROE (points) — positive = collects more than allowed";
+    val=r=>r.c.eDiff==null?null:r.c.eDiff*100; fmt=v=>v==null?'n/a':(v>=0?'+':'')+v.toFixed(2); }
+  $("charttitle").textContent=title;
+  const vals=rows.map(val).filter(v=>v!=null);
+  const maxAbs=Math.max(...vals.map(Math.abs),0.0001);
+  rows.sort((a,b)=>{const x=val(a),y=val(b); if(x==null)return 1; if(y==null)return -1; return y-x;});
+  $("bars").innerHTML=rows.map(r=>{
+    const v=val(r); const w=v==null?0:Math.abs(v)/maxAbs*100;
+    const neg=v!=null&&v<0; const hi=r.i===sel;
+    return `<div class="barrow">
+      <div class="barname" title="${r.u.name}" onclick="selectIdx(${r.i})">${hi?'<b>':''}${r.u.name}${hi?'</b>':''}</div>
+      <div class="bartrack"><div class="barfill ${hi?'hi':''} ${neg?'neg':''}" style="width:${w}%"></div></div>
+      <div class="barval ${neg?'':''}">${fmt(v)}</div>
+    </div>`;
+  }).join("");
+  if(mode==="A"){
+    const tot=rows.reduce((s,r)=>s+(r.c.oeM||0),0);
+    $("total").textContent="Total across utilities with rate-base data: "+moneyM(tot)+" per year (Georgia Power conservative / pre-Vogtle).";
+  } else { $("total").textContent="Note: several utilities under-earn their authorized ROE — the clean over-earning claim is the risk-justified view."; }
+}
+
+function renderTable(){
+  const head=mode==="A"
+   ? ["Utility","Customers","Auth ROE","Risk-just ROE","Gap","Over-earn ($M/yr)","Per customer"]
+   : ["Utility","Customers","Auth ROE","Earned ROE","Earned − Auth","$ vs auth ($M/yr)"];
+  let html="<tr>"+head.map(h=>`<th>${h}</th>`).join("")+"</tr>";
+  U.forEach((u,i)=>{
+    const c=calc(u); const s=i===sel?' class="sel"':'';
+    if(mode==="A"){
+      html+=`<tr${s}><td>${u.name}</td><td>${u.cust.toLocaleString()}</td><td>${pct(u.roe)}</td><td>${pct(c.riskJust)}</td><td>${(c.gap*100).toFixed(2)} pts</td><td>${c.oeM==null?'<span class=na>n/a</span>':moneyM(c.oeM)}</td><td>${c.perCust==null?'<span class=na>n/a</span>':money0(c.perCust)}</td></tr>`;
+    } else {
+      html+=`<tr${s}><td>${u.name}</td><td>${u.cust.toLocaleString()}</td><td>${pct(u.roe)}</td><td>${u.earned==null?'<span class=na>n/a</span>':pct(u.earned)}</td><td>${c.eDiff==null?'<span class=na>n/a</span>':(c.eDiff>=0?'+':'')+(c.eDiff*100).toFixed(2)+' pts'}</td><td>${c.eDollarM==null?'<span class=na>n/a</span>':(c.eDollarM>=0?'':'−')+moneyM(Math.abs(c.eDollarM))}</td></tr>`;
+    }
+  });
+  $("tbl").innerHTML=html;
+}
+
+function renderAll(){ $("rfv").textContent=(rf()*100).toFixed(1)+"%"; $("erpv").textContent=(erp()*100).toFixed(1)+"%";
+  renderHero(); renderBars(); renderTable(); }
+function selectIdx(i){ sel=i; $("pick").value=i; renderAll(); }
+window.selectIdx=selectIdx;
+
+$("pick").addEventListener("change",e=>{sel=+e.target.value;renderAll();});
+$("rf").addEventListener("input",renderAll);
+$("erp").addEventListener("input",renderAll);
+document.querySelectorAll("#toggle button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#toggle button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); mode=b.dataset.mode; renderAll();
+}));
+
+fillPicker(); renderAll();
+</script>
+</body>
+</html>
