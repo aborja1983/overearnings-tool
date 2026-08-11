@@ -28,12 +28,13 @@
   .bignum{font-size:46px;font-weight:800;color:var(--hi);line-height:1}
   .bignum.neg{color:var(--barneg)}
   .bigcap{font-size:13px;color:var(--muted);margin-top:6px;max-width:230px}
-  .break{display:flex;gap:26px;flex-wrap:wrap}
+  .break{display:flex;gap:24px;flex-wrap:wrap}
   .kv{font-size:13px;color:var(--muted)}
   .kv b{display:block;font-size:20px;color:var(--ink);font-weight:700}
   .sliders{display:flex;flex-wrap:wrap;gap:24px}
   .slider{flex:1;min-width:210px}
   input[type=range]{width:100%}
+  input[type=range]:disabled{opacity:.4}
   .sval{font-weight:700;color:var(--navy)}
   .note{font-size:12px;color:var(--muted)}
   a{color:var(--link)}
@@ -54,9 +55,11 @@
   summary{cursor:pointer;font-weight:700;color:var(--blue);font-size:13px}
   .calc{background:#f7f9fd;border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:8px;font-size:13px}
   .calc code{background:#eef1f7;padding:1px 5px;border-radius:4px;font-size:12.5px}
+  .calc b{color:var(--navy)}
   .primer p{font-size:14px;margin:8px 0}
   .primer b{color:var(--navy)}
   .foot{font-size:12px;color:var(--muted);margin-top:8px}
+  ul{margin:6px 0}
 </style>
 </head>
 <body>
@@ -66,6 +69,15 @@
   <p class="lede">The governing legal standard (<i>Bluefield</i> 1923, <i>Hope</i> 1944) says a utility's return should match the risk it actually bears. These are monopolies with captive customers — unusually low-risk — yet regulators grant returns set for a far riskier business. This tool measures the gap, and what it costs. <b>Investor-owned utilities only</b> (municipals and co-ops don't earn a set return). Every figure is sourced; the numbers move when you change the assumptions.</p>
 
   <div class="panel">
+    <div class="calc" style="margin-top:0;margin-bottom:16px">
+      <b>First, the three numbers this tool compares.</b> A utility earns a profit rate — its <b>return on equity (ROE)</b> — on the shareholder money invested in the grid. There are three versions of it:
+      <ul style="margin:8px 0;padding-left:20px">
+        <li><b>Authorized ROE</b> — the profit rate the state regulator <i>allows</i> the utility to charge for. (Usually ~9.5–10%.)</li>
+        <li><b>Risk-justified ROE</b> — what that profit rate <i>should</i> be, given how little risk a monopoly with captive customers actually runs. This is the standard the law sets (<i>Bluefield</i>/<i>Hope</i>): match the return to the risk.</li>
+        <li><b>Earned ROE</b> — what the utility <i>actually</i> made.</li>
+      </ul>
+      So the two views below: <b>Authorized vs. risk-justified</b> asks whether the allowed profit is higher than the utility's low risk deserves — that's the core question, and the gap is the "over-earning." <b>Earned vs. authorized</b> asks whether the utility collected even more than it was allowed. New to this? Open <b>"How this works"</b> lower down for the 90-second version.
+    </div>
     <div class="row controls">
       <div>
         <label>View</label>
@@ -84,8 +96,14 @@
   </div>
 
   <div class="panel">
-    <label>Assumptions — drag to test your own (this is what makes the estimate honest)</label>
-    <div class="sliders">
+    <label>How to measure a utility's risk (this is the crux)</label>
+    <div class="toggle" id="bmethod" style="margin-bottom:6px">
+      <button data-bm="damodaran" class="active">Damodaran sector beta (re-levered)</button>
+      <button data-bm="market">Market beta (per-utility)</button>
+    </div>
+    <div class="note" id="bmnote"></div>
+
+    <div class="sliders" style="margin-top:14px">
       <div class="slider">
         <div class="note">Risk-free rate (10-yr Treasury): <span class="sval" id="rfv"></span></div>
         <input type="range" id="rf" min="2" max="6" step="0.1" value="4.3">
@@ -99,16 +117,26 @@
       <div class="slider">
         <div class="note">Damodaran unlevered utility beta: <span class="sval" id="ubv"></span></div>
         <input type="range" id="ub" min="0.08" max="0.35" step="0.01" value="0.15">
-        <div class="note"><b>What it is:</b> the risk of a debt-free regulated utility. Default is <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/Betas.html" target="_blank" rel="noopener">Damodaran (NYU Stern)</a> "Utility (General)" unlevered beta, <b>0.15</b> (Jan 2026). The tool adds each utility's own debt back in — see below.</div>
+        <div class="note"><b>What it is:</b> the risk of a debt-free regulated utility (<a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/Betas.html" target="_blank" rel="noopener">Damodaran, Jan 2026</a>, 0.15). Only used in <b>Damodaran mode</b>.</div>
       </div>
     </div>
+    <div class="note" style="margin-top:10px"><b>Risk-justified ROE = risk-free rate + (beta &times; equity risk premium).</b> Because utilities are low-risk (a beta far below the market's 1.0), the return the law says they deserve is low — that's the number this tool checks the authorized return against.</div>
 
-    <details open>
-      <summary>How each utility's beta is calculated from Damodaran's number</summary>
+    <details>
+      <summary>The two beta methods — and the tradeoff (important)</summary>
       <div class="calc">
-        Damodaran publishes an <b>unlevered</b> beta for the regulated utility sector — the risk if the company had <i>no debt</i> (0.15, Jan 2026). Real utilities carry debt, which adds risk to shareholders, so we "re-lever" that beta to each utility's own capital structure using the standard Hamada formula:
-        <div style="margin:8px 0"><code>levered beta = unlevered beta &times; (1 + (1 &minus; tax rate) &times; Debt/Equity)</code></div>
-        where <b>Debt/Equity</b> comes from the utility's regulator-approved equity ratio, and the tax rate is 21%. Example — Con Edison (48% equity, so Debt/Equity = 52/48 = 1.08): <code>0.15 &times; (1 + 0.79 &times; 1.08) = 0.28</code>. Then <b>risk-justified ROE = risk-free rate + (that levered beta &times; equity risk premium)</b>. So higher-debt utilities get a slightly higher justified return — as they should. The levered beta the tool uses for each utility is shown in the table below.
+        <p style="margin:0 0 8px"><b>Damodaran sector (re-levered).</b> Start from Damodaran's <i>unlevered</i> beta for the regulated-utility sector — the risk with no debt (0.15) — and re-lever it to each utility's own capital structure: <code>levered beta = 0.15 &times; (1 + (1 &minus; 21%) &times; Debt/Equity)</code>. One authoritative source, hard to accuse of cherry-picking. <b>Its weakness:</b> it applies the <i>same sector risk</i> to everyone, so it <b>washes out a specific utility's elevated risk</b> — including wildfire/climate exposure. A California utility that the market treats as genuinely riskier looks identical to a low-risk Midwest one.</p>
+        <p style="margin:0 0 8px"><b>Market beta (per-utility).</b> Use each parent company's actual market beta (from stock-return data). <b>Its strength:</b> it captures the risk the market really perceives for <i>that</i> utility — so wildfire-exposed utilities (Edison ~0.67, Dominion ~0.66) get a higher risk-justified return, and their measured over-earning shrinks accordingly. <b>Its weakness:</b> betas vary by data provider and window, so a single number is more contestable.</p>
+        <p style="margin:0"><b>Why keep both.</b> Flip between them: Damodaran is the clean baseline; market beta is the honest answer to "but our climate risk is real." Even under market betas — which credit that risk — most utilities still over-earn. See the climate question below.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Does climate change justify a higher return?</summary>
+      <div class="calc">
+        <p style="margin:0 0 8px"><b>The utility's argument.</b> Climate change makes the grid more expensive (hardening, undergrounding, transition) <i>and</i> riskier (wildfire liability, disasters, stranded assets). Since return should match risk, a higher risk means a higher justified return.</p>
+        <p style="margin:0 0 8px"><b>Why it mostly doesn't hold.</b> Spending <i>more</i> isn't a reason to earn a higher <i>rate</i> — risk is; and a bigger climate rate base already means bigger profit even at a flat return. The genuinely risky parts are narrow and better handled by targeted tools than a blanket premium: physical damage is recovered from ratepayers (so it isn't shareholder risk); stranded assets are recovered cheaply via securitization (which <i>removes</i> the risk from shareholders); wildfire liability is real but concentrated (a few Western states) and addressed by wildfire funds, liability reform, and safety-conditioned recovery — not a nationwide ROE bump. A climate premium also rewards building more capital (the Averch–Johnson bias), tilting utilities toward the most expensive decarbonization, not the most effective.</p>
+        <p style="margin:0"><b>And the market already prices what's real.</b> If climate had raised utilities' systematic risk, betas would have risen; the sector's stays near 0.15 and ratings stay investment-grade. Where the risk <i>is</i> real (California wildfire), the <b>market-beta mode</b> above already gives those utilities a higher justified return — and even then they tend to over-earn. So the honest position isn't "climate never justifies a cent"; it's match the return to the <i>specific, market-measured</i> risk, and use targeted mechanisms for the tail — not a blanket premium households pay on top of the climate bill.</p>
       </div>
     </details>
   </div>
@@ -120,8 +148,34 @@
   </div>
 
   <div class="panel" style="overflow:auto">
-    <label>All eight utilities</label>
+    <label>All utilities in the dataset</label>
     <table id="tbl"></table>
+    <div class="calc" style="margin-top:12px">
+      <b>Coverage — and what's missing is the point.</b> This tool covers <b>28 of the roughly 50 largest</b> U.S. investor-owned utilities. Most of the rest are absent because their data isn't public — and for several large utilities the missing piece is the <b>authorized ROE itself</b>: they set rates through "black-box" settlements that never disclose the allowed return (for example PECO, PPL Electric, Ameren Missouri, Evergy, Eversource Massachusetts, Entergy Texas). That isn't a footnote — it's evidence. For millions of customers, the central term of the "regulatory compact" — the profit the utility is guaranteed — is never written down where the public can see it. You cannot audit, contest, or hold to account a bargain whose terms are secret. It also means every total here is an <i>undercount</i>: the utilities that keep their returns hidden are exactly the ones you'd most want to check.
+    </div>
+  </div>
+
+  <div class="panel">
+    <label>The $1.4 trillion buildout — over-earning on the new capital</label>
+    <p class="note" style="margin:0 0 10px">Utilities have raised their five-year capital plans to roughly <b>$1.4–1.5 trillion through 2030</b> (PowerLines). If the same risk-vs-authorized gap is charged on the equity that funds that new capital, this is the extra profit consumers pay — recurring, once it's in rates. Uses the risk assumptions and beta method set above.</p>
+    <div class="sliders">
+      <div class="slider"><div class="note">Total buildout ($B): <span class="sval" id="bov"></span></div><input type="range" id="bo" min="800" max="1600" step="50" value="1400"></div>
+      <div class="slider"><div class="note">Share earning the retail equity premium: <span class="sval" id="elv"></span></div><input type="range" id="el" min="50" max="100" step="1" value="80"></div>
+      <div class="slider"><div class="note">Equity share of capital: <span class="sval" id="esv"></span></div><input type="range" id="es" min="40" max="60" step="1" value="50"></div>
+      <div class="slider"><div class="note">Sector authorized ROE: <span class="sval" id="sav"></span></div><input type="range" id="sa" min="8.5" max="10.5" step="0.05" value="9.7"></div>
+      <div class="slider"><div class="note">U.S. IOU customers (millions): <span class="sval" id="icv"></span></div><input type="range" id="ic" min="90" max="130" step="1" value="110"></div>
+    </div>
+    <div class="hero" id="bhero" style="margin-top:16px"></div>
+    <div class="calc" style="margin-top:12px">
+      <b>Why this is a scoping estimate, not a precise figure — read before citing.</b>
+      <ul style="margin:8px 0 0;padding-left:20px">
+        <li><b>Not every dollar earns the retail equity premium.</b> Some of the buildout is FERC-jurisdictional transmission (a different ROE), and some is securitized or customer-funded (no equity return at all). The "share earning the premium" slider (default 80%) removes those dollars — lower it to be more conservative.</li>
+        <li><b>Gross vs. net.</b> $1.4T is five-year <i>gross</i> capex; depreciation and retirements mean less becomes net rate base. That slider also absorbs this — at 100% you're taking the full gross figure (an upper bound).</li>
+        <li><b>The premium is an assumption.</b> The result swings with the beta method (Damodaran ~4 pts vs. market ~3 pts) and the sliders — it's "under these assumptions," not a fact.</li>
+        <li><b>It phases in.</b> The capital enters rates gradually through 2030, so the full annual figure isn't reached until it's all in rates.</li>
+        <li><b>It's additive.</b> This is the premium on <i>new</i> capital only — on top of whatever premium is already embedded in today's rate base.</li>
+      </ul>
+    </div>
   </div>
 
   <div class="panel primer">
@@ -130,7 +184,7 @@
       <p><b>A utility is a monopoly.</b> One company owns the poles and wires; you can't shop for another. So a state commission sets what it can charge.</p>
       <p><b>The regulatory compact.</b> The utility invests billions in the grid; in return, regulators let it recover its costs and earn a profit. This so-called "regulatory compact" is where the fight over how much profit is fair plays out.</p>
       <p><b>Rate base &amp; ROE.</b> The utility earns a profit rate — the return on equity, or ROE — on the shareholder money invested in the grid (its "rate base"). Roughly: yearly profit &asymp; equity share of rate base &times; ROE.</p>
-      <p><b>Beta.</b> A measure of how risky the market thinks a company is (the whole market = 1.0). Utilities are very low-risk. We start from Damodaran's debt-free utility beta (0.15) and add each utility's own debt back in, so a low-risk utility earns a low justified return.</p>
+      <p><b>Beta.</b> How risky the market thinks a company is (the whole market = 1.0). Utilities are very low-risk. The tool offers two ways to set it — a debt-free sector figure from Damodaran re-levered per utility, or each utility's own market beta — so a low-risk utility earns a low justified return.</p>
       <p><b>The catch.</b> A monopoly with captive customers is unusually safe, and safe should mean low returns. This tool measures the gap between the return utilities are granted and what their real, low risk would justify.</p>
     </details>
   </div>
@@ -148,7 +202,7 @@
   </div>
 
   <div class="foot">
-    <b>Caveats.</b> Risk-free rate, equity risk premium, and the unlevered beta are adjustable. Beta is derived from <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/Betas.html" target="_blank" rel="noopener">Damodaran (NYU Stern), Jan 2026</a> "Utility (General)" unlevered beta 0.15, re-levered to each utility's approved capital structure (tax rate 21%). Rate-base figures vary by vintage/jurisdiction; <b>Georgia Power's ~$29B is an estimate</b> (FY2024, triangulated; exact figure pending its 2024 Annual Retail Surveillance Report). Earned ROE for PG&amp;E (~9.7%) and SCE (~11.6%) is the <b>core, utility-level 2024 figure</b> excluding wildfire charges, computed on book equity — it can differ from the regulatory recorded ROE. "Over-earning" here means <i>authorized return above the risk-justified return</i> (the <i>Bluefield/Hope</i> test), not that utilities always collect more than allowed.<br>
+    <b>Caveats.</b> Risk-free rate, equity risk premium, and beta are adjustable. Beta is either Damodaran's <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/Betas.html" target="_blank" rel="noopener">(NYU Stern, Jan 2026)</a> unlevered utility beta 0.15 re-levered to each utility's capital structure (tax 21%), or each parent's market beta. Rate-base figures vary by vintage/jurisdiction; <b>Georgia Power's ~$29B is an estimate</b> (FY2024, triangulated). Earned ROE for PG&amp;E (~9.7%) and SCE (~11.6%) is the <b>core, utility-level 2024 figure</b> excluding wildfire charges, computed on book equity. "Over-earning" here means <i>authorized return above the risk-justified return</i> (the <i>Bluefield/Hope</i> test), not that utilities always collect more than allowed.<br>
     <b>Sources.</b> Per-value citations in <a href="data/sources.md">data/sources.md</a>; raw data in <a href="data/utility_dataset.csv">data/utility_dataset.csv</a>. Legal standard: <i>Bluefield Waterworks v. PSC</i>, 262 U.S. 679 (1923); <i>FPC v. Hope Natural Gas</i>, 320 U.S. 591 (1944). Cross-check: Energy &amp; Policy Institute, <i>Paying for Their Profits</i>.
   </div>
 </div>
@@ -156,17 +210,37 @@
 <script>
 const TAX=0.21;
 const U = [
- {name:"Pacific Gas & Electric", parent:"PCG", cust:5500000, roe:0.0998, rb:69.0, eq:0.52, earned:0.097, note:"Earned = core utility ROE 2024 (est., ex-wildfire); ~at/below authorized."},
- {name:"Southern California Edison", parent:"EIX", cust:5000000, roe:0.1003, rb:47.6, eq:0.52, earned:0.116, note:"Earned = SCE core utility ROE 2024 (11.6%) — ABOVE its authorized return."},
- {name:"Florida Power & Light", parent:"NEE", cust:5900000, roe:0.1095, rb:75.1, eq:0.596, earned:0.118, note:"Settlement 2026–29; ROE midpoint 10.95%. High equity ratio (59.6%)."},
- {name:"Georgia Power", parent:"SO", cust:2804000, roe:0.105, rb:29.0, eq:0.56, earned:0.1369, note:"Rate base ~$29B is an ESTIMATE (FY2024, post-Vogtle triangulation). Earned 13.69% (FY2022, GA PSC) — well above authorized."},
- {name:"Duke Energy Carolinas", parent:"DUK", cust:2900000, roe:0.1010, rb:19.1, eq:0.53, earned:0.0728, note:"Earned 7.28% is SC jurisdiction — under-earned its authorized ROE."},
- {name:"Commonwealth Edison", parent:"EXC", cust:4000000, roe:0.08905, rb:13.8, eq:0.50, earned:0.091, note:"Distribution-only; low authorized ROE (8.9%). Earned = Exelon consolidated proxy."},
- {name:"Consolidated Edison (CECONY)", parent:"ED", cust:3600000, roe:0.0940, rb:32.9, eq:0.48, earned:0.0921, note:"Electric-only rate base."},
- {name:"Dominion Energy Virginia", parent:"D", cust:2700000, roe:0.0980, rb:13.8, eq:0.52035, earned:0.0906, note:"Rate base = Virginia-base estimate; equity/ROE from SCC 2025 order."}
+ {name:"Pacific Gas & Electric", parent:"PCG", cust:5500000, roe:0.0998, rb:69.0, eq:0.52, betaM:0.27, earned:0.097, note:"Earned = core utility ROE 2024 (est., ex-wildfire); ~at/below authorized."},
+ {name:"Southern California Edison", parent:"EIX", cust:5000000, roe:0.1003, rb:47.6, eq:0.52, betaM:0.67, earned:0.116, note:"Earned = SCE core utility ROE 2024 (11.6%) — ABOVE authorized. Market beta 0.67 reflects wildfire risk."},
+ {name:"Florida Power & Light", parent:"NEE", cust:5900000, roe:0.1095, rb:75.1, eq:0.596, betaM:0.58, earned:0.118, note:"Settlement 2026–29; ROE midpoint 10.95%; high equity ratio (59.6%)."},
+ {name:"Georgia Power", parent:"SO", cust:2804000, roe:0.105, rb:29.0, eq:0.56, betaM:0.34, earned:0.1369, note:"Rate base ~$29B ESTIMATE (post-Vogtle). Earned 13.69% (FY2022) — well above authorized."},
+ {name:"Duke Energy Carolinas", parent:"DUK", cust:2900000, roe:0.1010, rb:19.1, eq:0.53, betaM:0.45, earned:0.0728, note:"Earned 7.28% (SC) — under-earned its authorized ROE."},
+ {name:"Duke Energy Progress", parent:"DUK", cust:1700000, roe:0.098, rb:12.2, eq:0.53, betaM:0.37, earned:null, note:"NC 9.8% (NCUC E-2 Sub 1300, 2023); NC-retail rate base."},
+ {name:"Duke Energy Indiana", parent:"DUK", cust:900000, roe:0.0975, rb:12.0, eq:0.53, betaM:0.37, earned:null, note:"IURC Cause 46038 (2025); rate base June 2024."},
+ {name:"Florida — Duke Energy Florida", parent:"DUK", cust:2000000, roe:0.103, rb:16.5, eq:0.53, betaM:0.37, earned:null, note:"ROE 10.3% (2024 settlement); rate base ESTIMATE (settlement was black-box)."},
+ {name:"Commonwealth Edison", parent:"EXC", cust:4000000, roe:0.08905, rb:13.8, eq:0.50, betaM:0.51, earned:0.091, note:"Distribution-only; low authorized ROE (8.9%). Earned = Exelon proxy."},
+ {name:"Consolidated Edison (CECONY)", parent:"ED", cust:3600000, roe:0.0940, rb:32.9, eq:0.48, betaM:0.39, earned:0.0921, note:"Electric-only rate base."},
+ {name:"PSE&G", parent:"PEG", cust:2400000, roe:0.096, rb:17.8, eq:0.55, betaM:0.53, earned:null, note:"NJ 2024 settlement; electric-distribution rate base."},
+ {name:"DTE Electric", parent:"DTE", cust:2300000, roe:0.099, rb:22.15, eq:0.50, betaM:0.40, earned:null, note:"MPSC U-21860 (2026); jurisdictional electric rate base (2023)."},
+ {name:"Consumers Energy", parent:"CMS", cust:1900000, roe:0.099, rb:16.11, eq:0.50, betaM:0.34, earned:null, note:"MPSC U-21870 (2026); electric rate base."},
+ {name:"Dominion Energy Virginia", parent:"D", cust:2700000, roe:0.0980, rb:13.8, eq:0.52035, betaM:0.66, earned:0.0906, note:"Rate base = Virginia-base estimate; market beta 0.66 reflects elevated risk."},
+ {name:"Public Service Co. of Colorado", parent:"XEL", cust:1600000, roe:0.093, rb:11.3, eq:0.5569, betaM:0.41, earned:0.0755, note:"Xcel; 2022 CO case (9.3%); earned 7.55% ongoing (2025). Pending case requests 9.8%."},
+ {name:"Northern States Power–Minnesota", parent:"XEL", cust:1218582, roe:0.096, rb:13.2, eq:0.525, betaM:0.41, earned:null, note:"Xcel; MN 2024 case (2026)."},
+ {name:"Alabama Power", parent:"SO", cust:1550000, roe:0.11, rb:29.36, eq:0.5429, betaM:0.33, earned:0.11, note:"Uses Alabama's RSE formula, not a litigated ROE — effective/earned ~11% (well above the ~9.7% norm)."},
+ {name:"Appalachian Power", parent:"AEP", cust:1100000, roe:0.0975, rb:13.04, eq:0.482, betaM:0.55, earned:0.075, note:"AEP; VA 9.75%/WV 9.25%. Rate base incl. Wheeling Power."},
+ {name:"AEP Ohio (Ohio Power)", parent:"AEP", cust:1500000, roe:0.097, rb:8.22, eq:0.544, betaM:0.55, earned:0.101, note:"AEP; distribution 9.70%."},
+ {name:"Indiana Michigan Power", parent:"AEP", cust:600000, roe:0.0985, rb:6.56, eq:0.512, betaM:0.55, earned:0.10, note:"AEP; IN 9.85%/MI 9.86%."},
+ {name:"Public Service Co. of Oklahoma", parent:"AEP", cust:578000, roe:0.095, rb:7.98, eq:0.511, betaM:0.55, earned:0.072, note:"AEP; OK 2023 settlement."},
+ {name:"Southwestern Electric Power (SWEPCO)", parent:"AEP", cust:548000, roe:0.095, rb:10.5, eq:0.49, betaM:0.55, earned:0.079, note:"AEP; multi-state (AR 9.65/LA 9.70/TX 9.25) — ~9.5% shown."},
+ {name:"We Energies (Wisconsin Electric)", parent:"WEC", cust:1175000, roe:0.098, rb:6.7, eq:0.53, betaM:0.46, earned:null, note:"PSCW 2024 order (2025–26)."},
+ {name:"Ameren Illinois", parent:"AEE", cust:1200000, roe:0.0872, rb:4.2, eq:0.50, betaM:0.48, earned:null, note:"ICC multi-year plan; low authorized ROE (8.72%)."},
+ {name:"Idaho Power", parent:"IDA", cust:649000, roe:0.096, rb:4.9, eq:0.51, betaM:0.48, earned:0.091, note:"IPUC 2025 settlement (2026)."},
+ {name:"Entergy Arkansas", parent:"ETR", cust:735000, roe:0.0975, rb:10.3, eq:0.47, betaM:0.49, earned:0.0771, note:"FRP; earned 7.71% (2024) — under-earned."},
+ {name:"Entergy Louisiana", parent:"ETR", cust:1100000, roe:0.095, rb:14.3, eq:0.4951, betaM:0.49, earned:0.0833, note:"LPSC FRP; earned 8.33% — under-earned."},
+ {name:"Public Service Co. of New Mexico", parent:"TXNM", cust:550000, roe:0.0945, rb:3.0, eq:0.51, betaM:0.17, earned:null, note:"PNM; market beta 0.17 is depressed by a pending Blackstone acquisition — treat market mode with care here."}
 ];
 
-let mode="A", sel=0;
+let mode="A", sel=0, bm="damodaran";
 const $=id=>document.getElementById(id);
 const pct=x=>(x*100).toFixed(2)+"%";
 const money0=x=>"$"+Math.round(x).toLocaleString();
@@ -175,17 +249,21 @@ const rf=()=>parseFloat($("rf").value)/100;
 const erp=()=>parseFloat($("erp").value)/100;
 const ubeta=()=>parseFloat($("ub").value);
 
-function calc(u){
+function betaUsed(u){
+  if(bm==="market") return u.betaM;
   const dOverE=(1-u.eq)/u.eq;
-  const betaL=ubeta()*(1+(1-TAX)*dOverE);   // re-levered to this utility's capital structure
-  const rj=rf()+betaL*erp();
+  return ubeta()*(1+(1-TAX)*dOverE);   // Damodaran re-levered
+}
+function calc(u){
+  const b=betaUsed(u);
+  const rj=rf()+b*erp();
   const gap=u.roe-rj;
   const eqRB=u.rb*u.eq;
   const oeM=gap*eqRB*1000;
   const perCust=gap*eqRB*1e9/u.cust;
   const eDiff=u.earned!=null?u.earned-u.roe:null;
   const eDollarM=u.earned!=null?eDiff*eqRB*1000:null;
-  return {betaL,rj,gap,eqRB,oeM,perCust,eDiff,eDollarM};
+  return {b,rj,gap,eqRB,oeM,perCust,eDiff,eDollarM};
 }
 
 function fillPicker(){
@@ -203,7 +281,7 @@ function renderHero(){
         <div class="kv">Total over-earning<b>${moneyM(c.oeM)}/yr</b></div>
         <div class="kv">Authorized ROE<b>${pct(u.roe)}</b></div>
         <div class="kv">Risk-justified ROE<b>${pct(c.rj)}</b></div>
-        <div class="kv">Levered beta<b>${c.betaL.toFixed(2)}</b></div>
+        <div class="kv">Beta used<b>${c.b.toFixed(2)}</b></div>
         <div class="kv">Gap<b>${(c.gap*100).toFixed(2)} pts</b></div>
       </div>`;
   } else {
@@ -234,37 +312,63 @@ function renderBars(){
       <div class="barval">${fmt(v)}</div></div>`;
   }).join("");
   if(mode==="A"){const tot=rows.reduce((s,r)=>s+r.c.oeM,0);
-    $("total").textContent="Total across the eight: "+moneyM(tot)+" per year (Georgia Power on an estimated rate base).";}
+    $("total").textContent="Total across the eight: "+moneyM(tot)+" per year ("+(bm==="market"?"market betas":"Damodaran re-levered")+"; Georgia Power on an estimated rate base).";}
   else{$("total").textContent="Note: several utilities under-earn their authorized ROE — the clean over-earning claim is the risk-justified view.";}
 }
 function renderTable(){
   const head=mode==="A"
-   ? ["Utility","Customers","Auth ROE","Levered beta","Risk-just ROE","Gap","Over-earn ($M/yr)","Per customer"]
+   ? ["Utility","Customers","Auth ROE","Beta used","Risk-just ROE","Gap","Over-earn ($M/yr)","Per customer"]
    : ["Utility","Customers","Auth ROE","Earned ROE","Earned − Auth","$ vs auth ($M/yr)"];
   let html="<tr>"+head.map(h=>`<th>${h}</th>`).join("")+"</tr>";
   U.forEach((u,i)=>{
     const c=calc(u),s=i===sel?' class="sel"':'';
     if(mode==="A"){
-      html+=`<tr${s}><td>${u.name}</td><td>${u.cust.toLocaleString()}</td><td>${pct(u.roe)}</td><td>${c.betaL.toFixed(2)}</td><td>${pct(c.rj)}</td><td>${(c.gap*100).toFixed(2)} pts</td><td>${moneyM(c.oeM)}</td><td>${money0(c.perCust)}</td></tr>`;
+      html+=`<tr${s}><td>${u.name}</td><td>${u.cust.toLocaleString()}</td><td>${pct(u.roe)}</td><td>${c.b.toFixed(2)}</td><td>${pct(c.rj)}</td><td>${(c.gap*100).toFixed(2)} pts</td><td>${moneyM(c.oeM)}</td><td>${money0(c.perCust)}</td></tr>`;
     } else {
       html+=`<tr${s}><td>${u.name}</td><td>${u.cust.toLocaleString()}</td><td>${pct(u.roe)}</td><td>${pct(u.earned)}</td><td>${(c.eDiff>=0?'+':'')+(c.eDiff*100).toFixed(2)} pts</td><td>${c.eDollarM>=0?'':'−'}${moneyM(Math.abs(c.eDollarM))}</td></tr>`;
     }
   });
   $("tbl").innerHTML=html;
 }
+function renderBuildout(){
+  const buildout=+$("bo").value, elS=(+$("el").value)/100, esS=(+$("es").value)/100, saR=(+$("sa").value)/100, custM=+$("ic").value;
+  $("bov").textContent="$"+buildout.toLocaleString()+"B"; $("elv").textContent=(+$("el").value)+"%"; $("esv").textContent=(+$("es").value)+"%";
+  $("sav").textContent=(+$("sa").value).toFixed(2)+"%"; $("icv").textContent=custM+"M";
+  let sBeta;
+  if(bm==="market"){ sBeta=U.reduce((s,u)=>s+u.betaM,0)/U.length; }
+  else { const de=(1-esS)/esS; sBeta=ubeta()*(1+(1-TAX)*de); }
+  const rjS=rf()+sBeta*erp(), prem=saR-rjS, eqCap=buildout*elS*esS, oeB=prem*eqCap, perCust=oeB*1e9/(custM*1e6);
+  $("bhero").innerHTML=`
+   <div><div class="bignum ${oeB<0?'neg':''}">$${oeB.toFixed(1)}B</div><div class="bigcap">extra profit per year on the buildout, once it's in rates (${bm==='market'?'market beta':'Damodaran'})</div></div>
+   <div class="break">
+     <div class="kv">Per customer / yr<b>$${Math.round(perCust)}</b></div>
+     <div class="kv">Sector authorized ROE<b>${(saR*100).toFixed(2)}%</b></div>
+     <div class="kv">Risk-justified ROE<b>${(rjS*100).toFixed(2)}%</b></div>
+     <div class="kv">Premium<b>${(prem*100).toFixed(2)} pts</b></div>
+     <div class="kv">New equity funded<b>$${Math.round(eqCap).toLocaleString()}B</b></div>
+   </div>`;
+}
 function draw(){
   $("rfv").textContent=(rf()*100).toFixed(1)+"%";
   $("erpv").textContent=(erp()*100).toFixed(1)+"%";
   $("ubv").textContent=ubeta().toFixed(2);
-  renderHero();renderBars();renderTable();
+  $("ub").disabled=(bm==="market");
+  $("bmnote").innerHTML = bm==="market"
+    ? "<b>Market mode:</b> each utility's own market beta — captures its real perceived risk, including wildfire/climate exposure (Edison 0.67, Dominion 0.66). More honest per-utility, but provider-dependent."
+    : "<b>Damodaran mode:</b> one sector beta (0.15 unlevered) re-levered to each utility. Clean and citable, but applies the same risk to all — so it washes out a specific utility's climate/wildfire risk. See the tradeoff below.";
+  renderHero();renderBars();renderTable();renderBuildout();
 }
 function selectIdx(i){sel=i;$("pick").value=i;draw();}
 window.selectIdx=selectIdx;
 $("pick").addEventListener("change",e=>{sel=+e.target.value;draw();});
-["rf","erp","ub"].forEach(id=>$(id).addEventListener("input",draw));
+["rf","erp","ub","bo","el","es","sa","ic"].forEach(id=>$(id).addEventListener("input",draw));
 document.querySelectorAll("#toggle button").forEach(b=>b.addEventListener("click",()=>{
   document.querySelectorAll("#toggle button").forEach(x=>x.classList.remove("active"));
   b.classList.add("active");mode=b.dataset.mode;draw();
+}));
+document.querySelectorAll("#bmethod button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#bmethod button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");bm=b.dataset.bm;draw();
 }));
 fillPicker();draw();
 </script>

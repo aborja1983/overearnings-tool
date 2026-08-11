@@ -86,3 +86,40 @@ Assembled from public sources, August 2026. Model assumptions (adjustable): risk
 ## Legal standard
 - Bluefield Waterworks v. PSC, 262 U.S. 679 (1923) — https://supreme.justia.com/cases/federal/us/262/679/
 - FPC v. Hope Natural Gas, 320 U.S. 591 (1944) — https://supreme.justia.com/cases/federal/us/320/591/
+
+## Beta — two methods offered in the tool
+1) **Damodaran sector (re-levered):** unlevered utility beta 0.15 (NYU Stern, Jan 2026) re-levered to each utility's capital structure. Clean/citable; applies the same sector risk to all, so it washes out a specific utility's climate/wildfire risk.
+2) **Market beta (per-utility):** each parent's market beta (below) — captures the risk the market actually perceives for that utility (e.g., wildfire-exposed utilities score higher), but is provider-dependent.
+- Pacific Gas & Electric: market beta 0.27 — https://www.google.com/finance/beta/quote/PCG:NYSE
+- Southern California Edison: market beta 0.67 — https://www.zacks.com/stock/chart/EIX/fundamental/beta
+- Florida Power & Light: market beta 0.58 — https://www.zacks.com/stock/chart/NEE/fundamental/beta
+- Georgia Power: market beta 0.34 — https://www.zacks.com/stock/chart/SO/fundamental/beta
+- Duke Energy Carolinas: market beta 0.45 — https://finbox.com/NYSE:DUK/explorer/beta/
+- Commonwealth Edison: market beta 0.51 — https://stockanalysis.com/stocks/exc/statistics/
+- Consolidated Edison (CECONY): market beta 0.39 — https://stockanalysis.com/stocks/ed/statistics/
+- Dominion Energy Virginia: market beta 0.66 — https://stockanalysis.com/stocks/d/statistics/
+
+## Top-~50 expansion (added utilities — primary authorized-ROE source)
+Rate base, equity ratio, customers, and parent market beta for each were sourced alongside (see per-batch research). Betas are parent-level (stockanalysis.com, 5Y, Aug 2026). Where a utility uses black-box settlements or fair-value ratemaking, or the rate base was an estimate, it is flagged in the tool's row note.
+- Duke Energy Progress (9.8%, NCUC E-2 Sub 1300): https://www.sec.gov/Archives/edgar/data/17797/000110465923093663/tm2324190d1_ex99-1.htm
+- Duke Energy Indiana (9.75%, IURC 46038): https://www.sec.gov/Archives/edgar/data/81020/000132616025000013/dei2024ratecaseorder_irfac.htm
+- Duke Energy Florida (10.3%, 2024 settlement; rate base estimate): https://www.sec.gov/Archives/edgar/data/1326160/000110465924079888/tm2419445d1_ex99-1.htm
+- PSE&G (9.6%, NJ BPU 2024): https://www.prnewswire.com/news-releases/pseg-rate-case-settlement-approved-302271926.html
+- DTE Electric (9.9%, MPSC U-21860): https://www.michigan.gov/mpsc/commission/news-releases/2026/02/19/commission-approves-additional-242m-for-dte-electric-grid-upgrades
+- Consumers Energy (9.9%, MPSC U-21870): https://cubofmichigan.org/rate-cases/consumers-energy-electric-rate-case-u-21870-2025/
+- Public Service Co. of Colorado (9.3%, 2022 CO case; earned 7.55% ongoing): https://www.sec.gov/Archives/edgar/data/72903/000007290323000092/xel-20230620.htm
+- Northern States Power-Minnesota (9.6%, MN 2024 case): https://mn.gov/puc/activities/financial-analysis/general-rate-case/xcel-energy-electric/
+- Alabama Power (RSE formula, effective ~11%): https://www.alabamapower.com/content/dam/alabama-power/pdfs-docs/Rates/RSE.pdf
+- AEP Ohio / Appalachian / Indiana Michigan / PSO / SWEPCO (AEP quarterly Rate Base & ROE): https://docs.aep.com/docs/investors/Rate_Base_and_ROE_3-31-26.pdf
+- We Energies (9.8%, PSCW final order): https://www.we-energies.com/pdfs/etariffs/wisconsin/electric-final-order.pdf
+- Ameren Illinois (8.72%, ICC MYRP): https://www.sec.gov/Archives/edgar/data/1002910/000100291026000009/aee-20251231.htm
+- Idaho Power (9.6%, IPUC 2025): https://www.sec.gov/Archives/edgar/data/1057877/000105787725000075/ida-20251024.htm
+- Entergy Arkansas (9.75%, FRP; earned 7.71%): https://s201.q4cdn.com/714390239/files/doc_downloads/2025/E-AR.pdf
+- Entergy Louisiana (9.5%, LPSC FRP; earned 8.33%): https://www.entergylouisiana.com/about
+- Public Service Co. of New Mexico (9.45%, NMPRC 2025; beta acquisition-depressed): https://www.prnewswire.com/news-releases/pnm-tnmp-receive-rate-approvals-302457030.html
+
+## Buildout calculator (the $1.4T application)
+Annual over-earning on the buildout = (sector authorized ROE − risk-justified ROE) × (buildout $ × equity share). Buildout $1.4–1.5T through 2030 from PowerLines (https://powerlines.org/utilities-are-planning-to-spend-1-4-trillion-on-capital-expenditures-through-2030-as-utility-bills-rise-study-finds/). Upper bound: gross capex overstates net rate-base additions.
+
+## NOT-INCLUDED / gaps (documented, not estimated)
+Black-box settlements (no public authorized ROE / equity ratio): PECO, PPL Electric, NSTAR/Eversource MA, Ameren Missouri, Evergy Metro, Entergy Texas. Missing rate base or beta: Oncor, CenterPoint Houston, El Paso Electric, CL&P, JCP&L, Pepco, BGE (elec+gas only), Tampa Electric, Dominion SC, Mississippi Power, APS (fair-value rate base), Rocky Mountain Power / Nevada Power / MidAmerican / Puget (Berkshire/Macquarie — no traded-equity beta), SDG&E (rate base), PGE (black-box rate base). These need a fresh data pass (commission orders / FERC Form 1) before inclusion.
