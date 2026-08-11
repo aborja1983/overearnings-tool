@@ -50,13 +50,13 @@
   th{background:var(--navy);color:#fff;font-weight:600;text-align:right}
   th:first-child,td:first-child{text-align:left}
   tr.sel td{background:#eafaf4}
-  .na{color:#aab}
-  details{margin-top:6px}
-  summary{cursor:pointer;font-weight:700;color:var(--blue)}
+  details{margin-top:10px}
+  summary{cursor:pointer;font-weight:700;color:var(--blue);font-size:13px}
+  .calc{background:#f7f9fd;border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:8px;font-size:13px}
+  .calc code{background:#eef1f7;padding:1px 5px;border-radius:4px;font-size:12.5px}
   .primer p{font-size:14px;margin:8px 0}
   .primer b{color:var(--navy)}
   .foot{font-size:12px;color:var(--muted);margin-top:8px}
-  .flag{background:#fff7e6;border-left:4px solid #e0a030;padding:10px 12px;font-size:12.5px;color:#5A4000;border-radius:6px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -80,7 +80,7 @@
       </div>
     </div>
     <div class="hero" id="hero" style="margin-top:18px"></div>
-    <div class="flag" id="rowflag" style="display:none"></div>
+    <div class="note" id="rowflag" style="display:none;background:#fff7e6;border-left:4px solid #e0a030;padding:10px 12px;color:#5A4000;border-radius:6px;margin-top:10px"></div>
   </div>
 
   <div class="panel">
@@ -97,12 +97,20 @@
         <div class="note"><b>What it is:</b> the extra return investors expect for owning stocks over safe bonds.</div>
       </div>
       <div class="slider">
-        <div class="note">Utility-sector beta: <span class="sval" id="betav"></span></div>
-        <input type="range" id="beta" min="0.15" max="0.90" step="0.01" value="0.24">
-        <div class="note"><b>What it is:</b> how risky the market says the sector is (whole market = 1.0). Default is Damodaran's regulated <b>Utility (General)</b> beta, <b>0.24</b> (Jan 2026). Slide up to his broader <b>Power</b> category (0.48) to be more conservative.</div>
+        <div class="note">Damodaran unlevered utility beta: <span class="sval" id="ubv"></span></div>
+        <input type="range" id="ub" min="0.08" max="0.35" step="0.01" value="0.15">
+        <div class="note"><b>What it is:</b> the risk of a debt-free regulated utility. Default is <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/Betas.html" target="_blank" rel="noopener">Damodaran (NYU Stern)</a> "Utility (General)" unlevered beta, <b>0.15</b> (Jan 2026). The tool adds each utility's own debt back in — see below.</div>
       </div>
     </div>
-    <div class="note" style="margin-top:12px"><b>Putting it together:</b> Risk-justified ROE = risk-free rate + (sector beta &times; equity risk premium). Because utilities are low-risk (a beta far below the market's 1.0), the return the law says they deserve is <i>low</i> — that's the number this tool checks the authorized return against. Same sector beta is applied to every utility, so the differences you see come from their authorized returns, equity ratios, and size.</div>
+
+    <details open>
+      <summary>How each utility's beta is calculated from Damodaran's number</summary>
+      <div class="calc">
+        Damodaran publishes an <b>unlevered</b> beta for the regulated utility sector — the risk if the company had <i>no debt</i> (0.15, Jan 2026). Real utilities carry debt, which adds risk to shareholders, so we "re-lever" that beta to each utility's own capital structure using the standard Hamada formula:
+        <div style="margin:8px 0"><code>levered beta = unlevered beta &times; (1 + (1 &minus; tax rate) &times; Debt/Equity)</code></div>
+        where <b>Debt/Equity</b> comes from the utility's regulator-approved equity ratio, and the tax rate is 21%. Example — Con Edison (48% equity, so Debt/Equity = 52/48 = 1.08): <code>0.15 &times; (1 + 0.79 &times; 1.08) = 0.28</code>. Then <b>risk-justified ROE = risk-free rate + (that levered beta &times; equity risk premium)</b>. So higher-debt utilities get a slightly higher justified return — as they should. The levered beta the tool uses for each utility is shown in the table below.
+      </div>
+    </details>
   </div>
 
   <div class="panel">
@@ -120,21 +128,33 @@
     <details>
       <summary>How this works (plain language)</summary>
       <p><b>A utility is a monopoly.</b> One company owns the poles and wires; you can't shop for another. So a state commission sets what it can charge.</p>
-      <p><b>The bargain.</b> The utility invests billions in the grid; in return, regulators let it recover its costs and earn a profit. The fight is over how much profit is fair.</p>
+      <p><b>The regulatory compact.</b> The utility invests billions in the grid; in return, regulators let it recover its costs and earn a profit. This so-called "regulatory compact" is where the fight over how much profit is fair plays out.</p>
       <p><b>Rate base &amp; ROE.</b> The utility earns a profit rate — the return on equity, or ROE — on the shareholder money invested in the grid (its "rate base"). Roughly: yearly profit &asymp; equity share of rate base &times; ROE.</p>
-      <p><b>Why it's the battleground.</b> ROE is a judgment call, usually ~9.5–10%. Because it multiplies a multibillion-dollar rate base, a tenth of a percent is millions of dollars a year — on your bill.</p>
-      <p><b>The three slider terms.</b> <b>Risk-free rate</b> = what a safe government bond pays (the floor). <b>Beta</b> = how risky the market thinks the sector is (whole market = 1.0; the regulated-utility sector sits near 0.24, i.e. very safe). <b>Equity risk premium</b> = the extra return investors want for stocks over bonds. A "risk-justified" return = the floor plus beta times that premium — so a low-risk sector earns a low justified return.</p>
+      <p><b>Beta.</b> A measure of how risky the market thinks a company is (the whole market = 1.0). Utilities are very low-risk. We start from Damodaran's debt-free utility beta (0.15) and add each utility's own debt back in, so a low-risk utility earns a low justified return.</p>
       <p><b>The catch.</b> A monopoly with captive customers is unusually safe, and safe should mean low returns. This tool measures the gap between the return utilities are granted and what their real, low risk would justify.</p>
     </details>
   </div>
 
+  <div class="panel">
+    <label>What this means — policy implications</label>
+    <p style="font-size:14px;margin:6px 0 10px;color:var(--ink)">The gap this tool measures is the "regulatory compact" doing its real work. The compact is described as a settled deal in which utilities are <i>owed</i> a protected profit — but that entitlement isn't law. Courts have never guaranteed a profit, and the phrase appears in no statute. What the law actually requires (<i>Bluefield</i> 1923, <i>Hope</i> 1944) is a return matched to risk — and these monopolies are among the safest businesses there are. The premium you see here is that fiction, priced in dollars on your bill.</p>
+    <p style="font-size:14px;margin:6px 0;color:var(--ink)">A real compact would give the metaphor enforceable content. Three reforms follow:</p>
+    <ul style="font-size:14px;color:var(--ink);line-height:1.55">
+      <li style="margin-bottom:7px"><b>Make ratepayer protection a central, enforceable obligation.</b> Today it's an afterthought fought case by case; it should be written into law, not left to discretion.</li>
+      <li style="margin-bottom:7px"><b>Put the risk on whoever causes it.</b> Bind large new loads — data centers — to enforceable terms so they pay for the upgrades they trigger, keeping the utility's risk low rather than socializing it onto households.</li>
+      <li style="margin-bottom:7px"><b>Recalibrate the return to the real risk.</b> This is what the tool measures. If a utility bears little risk, its return should be low — exactly what <i>Bluefield/Hope</i> already require, and what the fiction lets utilities escape.</li>
+    </ul>
+    <p style="font-size:14px;margin:8px 0 0;color:var(--ink)">The usual objection — cut returns and capital flees — doesn't hold. High returns on equity have nothing to do with raising debt; the market already prices these utilities as nearly risk-free; capital is pouring in at today's returns; and the buildout can be financed with far cheaper tools (securitization, third-party capital) than an ROE premium ratepayers pay forever.</p>
+  </div>
+
   <div class="foot">
-    <b>Caveats.</b> Risk-free rate, equity risk premium, and sector beta are adjustable assumptions. Beta is the regulated-utility sector beta from <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/Betas.html" target="_blank" rel="noopener">Damodaran (NYU Stern), Jan 2026</a> — "Utility (General)" 0.24; his broader "Power" category (0.48) is a more conservative choice, applied sector-wide to all utilities. Rate-base figures vary by vintage/jurisdiction; <b>Georgia Power's ~$29B is an estimate</b> (FY2024, triangulated from FERC Form 1 plant growth + Vogtle additions; exact figure pending its 2024 Annual Retail Surveillance Report). Earned ROE for PG&amp;E (~9.7%) and SCE (~11.6%) is the <b>core, utility-level 2024 figure</b> excluding wildfire charges, computed on book equity — it can differ from the regulatory recorded ROE. "Over-earning" here means <i>authorized return above the risk-justified return</i> (the <i>Bluefield/Hope</i> test), not that utilities always collect more than allowed.<br>
+    <b>Caveats.</b> Risk-free rate, equity risk premium, and the unlevered beta are adjustable. Beta is derived from <a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/Betas.html" target="_blank" rel="noopener">Damodaran (NYU Stern), Jan 2026</a> "Utility (General)" unlevered beta 0.15, re-levered to each utility's approved capital structure (tax rate 21%). Rate-base figures vary by vintage/jurisdiction; <b>Georgia Power's ~$29B is an estimate</b> (FY2024, triangulated; exact figure pending its 2024 Annual Retail Surveillance Report). Earned ROE for PG&amp;E (~9.7%) and SCE (~11.6%) is the <b>core, utility-level 2024 figure</b> excluding wildfire charges, computed on book equity — it can differ from the regulatory recorded ROE. "Over-earning" here means <i>authorized return above the risk-justified return</i> (the <i>Bluefield/Hope</i> test), not that utilities always collect more than allowed.<br>
     <b>Sources.</b> Per-value citations in <a href="data/sources.md">data/sources.md</a>; raw data in <a href="data/utility_dataset.csv">data/utility_dataset.csv</a>. Legal standard: <i>Bluefield Waterworks v. PSC</i>, 262 U.S. 679 (1923); <i>FPC v. Hope Natural Gas</i>, 320 U.S. 591 (1944). Cross-check: Energy &amp; Policy Institute, <i>Paying for Their Profits</i>.
   </div>
 </div>
 
 <script>
+const TAX=0.21;
 const U = [
  {name:"Pacific Gas & Electric", parent:"PCG", cust:5500000, roe:0.0998, rb:69.0, eq:0.52, earned:0.097, note:"Earned = core utility ROE 2024 (est., ex-wildfire); ~at/below authorized."},
  {name:"Southern California Edison", parent:"EIX", cust:5000000, roe:0.1003, rb:47.6, eq:0.52, earned:0.116, note:"Earned = SCE core utility ROE 2024 (11.6%) — ABOVE its authorized return."},
@@ -153,104 +173,100 @@ const money0=x=>"$"+Math.round(x).toLocaleString();
 const moneyM=x=>"$"+Math.round(x).toLocaleString()+"M";
 const rf=()=>parseFloat($("rf").value)/100;
 const erp=()=>parseFloat($("erp").value)/100;
-const sbeta=()=>parseFloat($("beta").value);
-
-function riskJust(){return rf()+sbeta()*erp();}   // same for all utilities
+const ubeta=()=>parseFloat($("ub").value);
 
 function calc(u){
-  const rj = riskJust();
-  const gap = u.roe - rj;
-  const eqRB = u.rb!=null ? u.rb*u.eq : null;
-  const oeM = eqRB!=null ? gap*eqRB*1000 : null;
-  const perCust = eqRB!=null ? gap*eqRB*1e9/u.cust : null;
-  const eDiff = u.earned!=null ? u.earned - u.roe : null;
-  const eDollarM = (u.earned!=null && eqRB!=null) ? eDiff*eqRB*1000 : null;
-  return {rj,gap,eqRB,oeM,perCust,eDiff,eDollarM};
+  const dOverE=(1-u.eq)/u.eq;
+  const betaL=ubeta()*(1+(1-TAX)*dOverE);   // re-levered to this utility's capital structure
+  const rj=rf()+betaL*erp();
+  const gap=u.roe-rj;
+  const eqRB=u.rb*u.eq;
+  const oeM=gap*eqRB*1000;
+  const perCust=gap*eqRB*1e9/u.cust;
+  const eDiff=u.earned!=null?u.earned-u.roe:null;
+  const eDollarM=u.earned!=null?eDiff*eqRB*1000:null;
+  return {betaL,rj,gap,eqRB,oeM,perCust,eDiff,eDollarM};
 }
 
 function fillPicker(){
-  const s=$("pick"); s.innerHTML="";
+  const s=$("pick");s.innerHTML="";
   U.forEach((u,i)=>{const o=document.createElement("option");o.value=i;o.textContent=u.name;s.appendChild(o);});
   s.value=sel;
 }
 function renderHero(){
-  const u=U[sel], c=calc(u), h=$("hero"), f=$("rowflag");
+  const u=U[sel],c=calc(u),h=$("hero"),f=$("rowflag");
   if(mode==="A"){
     h.innerHTML=`
-      <div>
-        <div class="bignum ${c.perCust<0?'neg':''}">${money0(c.perCust)}</div>
-        <div class="bigcap">per customer, per year — the over-earning ${u.name} collects above a risk-justified return</div>
-      </div>
+      <div><div class="bignum ${c.perCust<0?'neg':''}">${money0(c.perCust)}</div>
+      <div class="bigcap">per customer, per year — the over-earning ${u.name} collects above a risk-justified return</div></div>
       <div class="break">
         <div class="kv">Total over-earning<b>${moneyM(c.oeM)}/yr</b></div>
         <div class="kv">Authorized ROE<b>${pct(u.roe)}</b></div>
         <div class="kv">Risk-justified ROE<b>${pct(c.rj)}</b></div>
+        <div class="kv">Levered beta<b>${c.betaL.toFixed(2)}</b></div>
         <div class="kv">Gap<b>${(c.gap*100).toFixed(2)} pts</b></div>
       </div>`;
   } else {
     const over=c.eDiff>=0;
     h.innerHTML=`
-      <div>
-        <div class="bignum ${over?'':'neg'}">${over?'+':''}${(c.eDiff*100).toFixed(2)} pts</div>
-        <div class="bigcap">${over?'earned ABOVE':'earned BELOW'} its authorized ROE ${over?'(over-earning its own allowance)':'(under-earning — collected less than allowed)'}</div>
-      </div>
+      <div><div class="bignum ${over?'':'neg'}">${over?'+':''}${(c.eDiff*100).toFixed(2)} pts</div>
+      <div class="bigcap">${over?'earned ABOVE':'earned BELOW'} its authorized ROE ${over?'(over-earning its own allowance)':'(under-earning — collected less than allowed)'}</div></div>
       <div class="break">
         <div class="kv">Earned ROE<b>${pct(u.earned)}</b></div>
         <div class="kv">Authorized ROE<b>${pct(u.roe)}</b></div>
         <div class="kv">$ vs. authorized<b>${c.eDollarM>=0?'':'−'}${moneyM(Math.abs(c.eDollarM))}/yr</b></div>
       </div>`;
   }
-  f.style.display="block"; f.textContent=u.note;
+  f.style.display="block";f.textContent=u.note;
 }
 function renderBars(){
   const rows=U.map((u,i)=>({i,u,c:calc(u)}));
   let title,val,fmt;
-  if(mode==="A"){ title="Over-earning per customer ($/yr) — bigger bar, bigger premium on your bill";
-    val=r=>r.c.perCust; fmt=v=>money0(v); }
-  else { title="Earned minus authorized ROE (points) — positive = collects more than allowed";
-    val=r=>r.c.eDiff*100; fmt=v=>(v>=0?'+':'')+v.toFixed(2); }
+  if(mode==="A"){title="Over-earning per customer ($/yr) — bigger bar, bigger premium on your bill";val=r=>r.c.perCust;fmt=v=>money0(v);}
+  else{title="Earned minus authorized ROE (points) — positive = collects more than allowed";val=r=>r.c.eDiff*100;fmt=v=>(v>=0?'+':'')+v.toFixed(2);}
   $("charttitle").textContent=title;
   const maxAbs=Math.max(...rows.map(r=>Math.abs(val(r))),0.0001);
   rows.sort((a,b)=>val(b)-val(a));
   $("bars").innerHTML=rows.map(r=>{
-    const v=val(r), w=Math.abs(v)/maxAbs*100, neg=v<0, hi=r.i===sel;
-    return `<div class="barrow">
-      <div class="barname" title="${r.u.name}" onclick="selectIdx(${r.i})">${hi?'<b>':''}${r.u.name}${hi?'</b>':''}</div>
+    const v=val(r),w=Math.abs(v)/maxAbs*100,neg=v<0,hi=r.i===sel;
+    return `<div class="barrow"><div class="barname" title="${r.u.name}" onclick="selectIdx(${r.i})">${hi?'<b>':''}${r.u.name}${hi?'</b>':''}</div>
       <div class="bartrack"><div class="barfill ${hi?'hi':''} ${neg?'neg':''}" style="width:${w}%"></div></div>
-      <div class="barval">${fmt(v)}</div>
-    </div>`;
+      <div class="barval">${fmt(v)}</div></div>`;
   }).join("");
-  if(mode==="A"){
-    const tot=rows.reduce((s,r)=>s+(r.c.oeM||0),0);
-    $("total").textContent="Total across the eight: "+moneyM(tot)+" per year (Georgia Power on an estimated rate base).";
-  } else { $("total").textContent="Note: several utilities under-earn their authorized ROE — the clean over-earning claim is the risk-justified view."; }
+  if(mode==="A"){const tot=rows.reduce((s,r)=>s+r.c.oeM,0);
+    $("total").textContent="Total across the eight: "+moneyM(tot)+" per year (Georgia Power on an estimated rate base).";}
+  else{$("total").textContent="Note: several utilities under-earn their authorized ROE — the clean over-earning claim is the risk-justified view.";}
 }
 function renderTable(){
   const head=mode==="A"
-   ? ["Utility","Customers","Auth ROE","Risk-just ROE","Gap","Over-earn ($M/yr)","Per customer"]
+   ? ["Utility","Customers","Auth ROE","Levered beta","Risk-just ROE","Gap","Over-earn ($M/yr)","Per customer"]
    : ["Utility","Customers","Auth ROE","Earned ROE","Earned − Auth","$ vs auth ($M/yr)"];
   let html="<tr>"+head.map(h=>`<th>${h}</th>`).join("")+"</tr>";
   U.forEach((u,i)=>{
-    const c=calc(u), s=i===sel?' class="sel"':'';
+    const c=calc(u),s=i===sel?' class="sel"':'';
     if(mode==="A"){
-      html+=`<tr${s}><td>${u.name}</td><td>${u.cust.toLocaleString()}</td><td>${pct(u.roe)}</td><td>${pct(c.rj)}</td><td>${(c.gap*100).toFixed(2)} pts</td><td>${moneyM(c.oeM)}</td><td>${money0(c.perCust)}</td></tr>`;
+      html+=`<tr${s}><td>${u.name}</td><td>${u.cust.toLocaleString()}</td><td>${pct(u.roe)}</td><td>${c.betaL.toFixed(2)}</td><td>${pct(c.rj)}</td><td>${(c.gap*100).toFixed(2)} pts</td><td>${moneyM(c.oeM)}</td><td>${money0(c.perCust)}</td></tr>`;
     } else {
       html+=`<tr${s}><td>${u.name}</td><td>${u.cust.toLocaleString()}</td><td>${pct(u.roe)}</td><td>${pct(u.earned)}</td><td>${(c.eDiff>=0?'+':'')+(c.eDiff*100).toFixed(2)} pts</td><td>${c.eDollarM>=0?'':'−'}${moneyM(Math.abs(c.eDollarM))}</td></tr>`;
     }
   });
   $("tbl").innerHTML=html;
 }
-function renderAll(){ $("rfv").textContent=(rf()*100).toFixed(1)+"%"; $("erpv").textContent=(erp()*100).toFixed(1)+"%"; $("betav").textContent=sbeta().toFixed(2);
-  renderHero(); renderBars(); renderTable(); }
-function selectIdx(i){ sel=i; $("pick").value=i; renderAll(); }
+function draw(){
+  $("rfv").textContent=(rf()*100).toFixed(1)+"%";
+  $("erpv").textContent=(erp()*100).toFixed(1)+"%";
+  $("ubv").textContent=ubeta().toFixed(2);
+  renderHero();renderBars();renderTable();
+}
+function selectIdx(i){sel=i;$("pick").value=i;draw();}
 window.selectIdx=selectIdx;
-$("pick").addEventListener("change",e=>{sel=+e.target.value;renderAll();});
-["rf","erp","beta"].forEach(id=>$(id).addEventListener("input",renderAll));
+$("pick").addEventListener("change",e=>{sel=+e.target.value;draw();});
+["rf","erp","ub"].forEach(id=>$(id).addEventListener("input",draw));
 document.querySelectorAll("#toggle button").forEach(b=>b.addEventListener("click",()=>{
   document.querySelectorAll("#toggle button").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active"); mode=b.dataset.mode; renderAll();
+  b.classList.add("active");mode=b.dataset.mode;draw();
 }));
-fillPicker(); renderAll();
+fillPicker();draw();
 </script>
 </body>
 </html>
