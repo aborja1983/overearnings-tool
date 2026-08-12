@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Over-Earnings Tool — Methodology & Sources</title>
+<style>
+  :root{--navy:#1F3864;--blue:#2E5496;--link:#0563C1;--ink:#1a1a1a;--muted:#5f6b7a;--line:#e2e6ee;--bg:#f6f8fc;--card:#fff;--hi:#0e7c66}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6}
+  .wrap{max-width:760px;margin:0 auto;padding:34px 22px 70px}
+  a{color:var(--link)}
+  .back{font-size:13px;font-weight:700;text-decoration:none;color:var(--blue)}
+  h1{font-size:28px;color:var(--navy);margin:14px 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 26px}
+  h2{font-size:18px;color:var(--navy);margin:30px 0 8px}
+  p{font-size:15.5px;margin:0 0 12px}
+  ol,ul{font-size:15.5px;margin:0 0 12px;padding-left:22px}
+  li{margin:5px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0}
+  .q{font-weight:700;color:var(--navy);margin:18px 0 4px;font-size:15.5px}
+  .ex{background:#f7f9fd;border:1px solid var(--line);border-radius:8px;padding:14px 16px;font-size:14.5px}
+  .ex b{color:var(--navy)}
+  code{background:#eef1f7;padding:1px 5px;border-radius:4px;font-size:13.5px}
+  .foot{font-size:12.5px;color:var(--muted);margin-top:28px;border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">&larr; Back to the tool</a>
+  <h1>Methodology &amp; Sources</h1>
+  <p class="sub">How the numbers are built, and where every figure comes from. Updated August 2026.</p>
+
+  <h2>Where the data is</h2>
+  <p>Every figure is public and traceable, in three places with identical numbers:</p>
+  <ul>
+    <li><b>The dataset</b> — <a href="data/utility_dataset.csv">utility_dataset.csv</a>. One row per utility: rate base, equity ratio, authorized ROE, betas, and notes.</li>
+    <li><b>The citations</b> — <a href="data/sources.md">sources.md</a>. Each rate base, ROE, equity ratio, and customer count links to its origin (rate case order, commission filing, or SEC filing).</li>
+    <li><b>Inside the tool</b> — the &ldquo;Every figure is sourced&rdquo; panel and the &ldquo;Download data (CSV)&rdquo; button.</li>
+  </ul>
+
+  <h2>The formula (per utility)</h2>
+  <div class="card">
+    <ol>
+      <li><b>Risk-justified ROE</b> = risk-free rate + (beta &times; equity risk premium)</li>
+      <li><b>Gap</b> = authorized ROE &minus; risk-justified ROE</li>
+      <li><b>Equity rate base</b> = rate base &times; equity ratio</li>
+      <li><b>Shareholder windfall (after-tax)</b> = gap &times; equity rate base</li>
+      <li><b>Bill impact (pre-tax)</b> = windfall &divide; (1 &minus; corporate tax rate)</li>
+      <li><b>Per customer</b> = bill impact &divide; number of customers</li>
+    </ol>
+    <p style="margin:0;font-size:14px;color:var(--muted)">Default assumptions (all adjustable in the tool): risk-free rate 4.3% (FRED DGS10); equity risk premium 5.0%; corporate tax 21%; beta = Damodaran&rsquo;s unlevered utility beta 0.15 (NYU Stern, Jan 2026) re-levered to each utility&rsquo;s capital structure, or each parent&rsquo;s market beta.</p>
+  </div>
+  <p class="ex"><b>Worked example — Pacific Gas &amp; Electric.</b> Rate base $69.0B &times; 52% equity = <b>$35.9B equity rate base</b>. Authorized ROE 9.98% &minus; risk-justified 5.6% = <b>4.38-point gap</b>. Windfall = 4.38% &times; $35.9B = <b>$1.57B</b> after-tax; &divide; (1 &minus; 21%) = <b>$1.99B</b> on bills; &divide; 5.5M customers = <b>$362 / customer / year</b>.</p>
+
+  <h2>FAQ</h2>
+
+  <p class="q">Where did the rate base numbers come from?</p>
+  <p>Each utility&rsquo;s rate base is taken from its own rate case or commission order (or, where noted, its latest SEC/investor filing) &mdash; the regulator-set figure, net plant in service plus allowed additions, not our estimate, except the few flagged below. See <a href="data/sources.md">sources.md</a> for the link behind each one.</p>
+
+  <p class="q">You can only rate-base capex, not operating costs &mdash; did you account for that?</p>
+  <p>Yes, by construction. The return premium is applied <i>only</i> to the equity share of <b>rate base</b> (step 3 above) &mdash; never to revenue, O&amp;M, or total spending. Rate base is capital investment (net plant), so operating costs never enter the calculation. We also use each utility&rsquo;s <i>regulatory</i> rate base (net of accumulated depreciation), not gross capex, which is the more conservative figure.</p>
+
+  <p class="q">What about the $1.4 trillion buildout number &mdash; isn&rsquo;t that gross capex?</p>
+  <p>That is the one place gross capex appears, and it is handled separately. The buildout figure is five-year <i>gross</i> capex, which overstates net rate-base additions. The tool&rsquo;s buildout calculator discounts it with a &ldquo;share earning the premium&rdquo; slider (default 80%), which removes FERC-jurisdictional, securitized, and customer-funded dollars and absorbs the gross-to-net gap. It is labeled a scoping estimate, not a precise forecast.</p>
+
+  <p class="q">Which figures are estimates rather than filed numbers?</p>
+  <p>Three are triangulated and flagged in the notes: Georgia Power&rsquo;s rate base (~$29B, post-Vogtle), Duke Energy Florida&rsquo;s rate base (2024 black-box settlement), and Dominion Energy Virginia&rsquo;s Virginia-jurisdiction base. Everything else is a filed figure.</p>
+
+  <p class="q">Why only 28 utilities?</p>
+  <p>Several large utilities set rates through &ldquo;black-box&rdquo; settlements that never disclose an authorized ROE (PECO, PPL Electric, Ameren Missouri, Evergy, Eversource Massachusetts, Entergy Texas, and others). They can&rsquo;t be included without a disclosed return &mdash; which is itself part of the finding. Every total is therefore an undercount.</p>
+
+  <h2>Legal standard being tested</h2>
+  <p><i>Bluefield Waterworks v. PSC</i>, 262 U.S. 679 (1923), and <i>FPC v. Hope Natural Gas</i>, 320 U.S. 591 (1944): a utility&rsquo;s return must be &ldquo;commensurate with returns on investments in other enterprises having corresponding risks.&rdquo; The tool measures the distance between the authorized return and that risk-justified benchmark.</p>
+
+  <div class="foot"><a class="back" href="index.html">&larr; Back to the tool</a></div>
+</div>
+</body>
+</html>
