@@ -1,9 +1,29 @@
-utility,parent,customers,authorized_roe,rate_base_$B,rate_base_year,equity_ratio,levered_beta_from_damodaran,earned_roe,earned_basis,risk_justified_roe,notes,market_beta
-Pacific Gas & Electric,PCG,5500000,0.0998,69.0,2025,0.52,0.259,0.097,"core utility ROE 2024 (est., ex-wildfire)",0.056,"Earned ~9.7% is core utility 2024 (ex-wildfire), computed on book equity; ~at/below authorized.",0.27
-Southern California Edison,EIX,5000000,0.1003,47.6,2025,0.52,0.259,0.116,SCE core utility ROE 2024,0.056,Earned 11.6% is SCE core utility 2024 (ex-wildfire) - ABOVE authorized. Clean over-earning example.,0.67
-Florida Power & Light,NEE,5900000,0.1095,75.1,2026 test yr,0.596,0.23,0.118,FPSC surveillance TTM Q3 2024,0.0545,Settlement 2026-29; ROE midpoint 10.95%; high equity ratio 59.6%.,0.58
-Georgia Power,SO,2804000,0.105,29.0,EST. FY2024 post-Vogtle,0.56,0.243,0.1369,GA PSC surveillance FY2022,0.0552,"RATE BASE ~$29B IS AN ESTIMATE: FY2020 retail $20.78B + ~$8B net Vogtle + T&D growth, triangulated from FERC Form 1 plant (2020 $41.1B -> 2024 $56.9B). Exact = 2024 Annual Retail Surveillance Report. Earned 13.69% well above authorized.",0.34
-Duke Energy Carolinas,DUK,2900000,0.101,19.1,2023 NC retail,0.53,0.255,0.0728,SC jurisdiction 12mo end 12/2024,0.0558,Earned 7.28% (SC) under-earned authorized. New NC case pending (req 10.95%).,0.45
-Commonwealth Edison,EXC,4000000,0.08905,13.8,2024-27 MRP,0.5,0.269,0.091,Exelon consolidated proxy,0.0564,Distribution-only; low authorized ROE 8.9%. Earned = Exelon consolidated proxy.,0.51
-Consolidated Edison (CECONY),ED,3600000,0.094,32.9,2026 RY1,0.48,0.278,0.0921,electric rate plan RY2024,0.0569,Electric-only rate base. Earned 9.21% vs authorized 9.40%.,0.39
-Dominion Energy Virginia,D,2700000,0.098,13.8,2024E VA base,0.52035,0.259,0.0906,VA jurisdiction 2023-24 SCC,0.056,Rate base = Virginia-base estimate; equity 52.035% & ROE 9.8% from SCC 2025 order.,0.66
+utility,parent,customers,authorized_roe,rate_base_$B,equity_ratio,market_beta,damodaran_levered_beta,risk_justified_roe_damodaran,earned_roe,shareholder_windfall_$M_aftertax,bill_impact_$M_pretax,per_customer_$_pretax,notes
+Pacific Gas & Electric,PCG,5500000,0.0998,69.0,0.52,0.27,0.259,0.056,0.097,1573,1991,362,"core utility ROE 2024 (est., ex-wildfire)"
+Southern California Edison,EIX,5000000,0.1003,47.6,0.52,0.67,0.259,0.056,0.116,1097,1389,278,SCE core utility ROE 2024 — above authorized; mkt beta reflects wildfire
+Florida Power & Light,NEE,5900000,0.1095,75.1,0.596,0.58,0.23,0.0545,0.118,2461,3115,528,settlement 2026-29; high equity ratio 59.6%
+Georgia Power,SO,2804000,0.105,29.0,0.56,0.34,0.243,0.0552,0.1369,809,1025,365,rate base ~$29B ESTIMATE (post-Vogtle); earned 13.69% FY2022
+Duke Energy Carolinas,DUK,2900000,0.101,19.1,0.53,0.45,0.255,0.0558,0.0728,458,580,200,earned 7.28% (SC) — under-earned
+Duke Energy Progress,DUK,1700000,0.098,12.2,0.53,0.37,0.255,0.0558,,273,346,203,NC 9.8% (2023)
+Duke Energy Indiana,DUK,900000,0.0975,12.0,0.53,0.37,0.255,0.0558,,266,336,373,IURC 46038 (2025)
+Duke Energy Florida,DUK,2000000,0.103,16.5,0.53,0.37,0.255,0.0558,,413,523,261,10.3% (2024); rate base ESTIMATE (black-box settlement)
+Commonwealth Edison,EXC,4000000,0.08905,13.8,0.5,0.51,0.269,0.0564,0.091,225,285,71,distribution-only; low auth ROE 8.9%; earned = Exelon proxy
+Consolidated Edison (CECONY),ED,3600000,0.094,32.9,0.48,0.39,0.278,0.0569,0.0921,586,741,206,electric-only rate base
+PSE&G,PEG,2400000,0.096,17.8,0.55,0.53,0.247,0.0553,,398,504,210,NJ 2024 settlement
+DTE Electric,DTE,2300000,0.099,22.15,0.5,0.4,0.269,0.0564,,472,597,260,MPSC U-21860 (2026)
+Consumers Energy,CMS,1900000,0.099,16.11,0.5,0.34,0.269,0.0564,,343,434,228,MPSC U-21870 (2026)
+Dominion Energy Virginia,D,2700000,0.098,13.8,0.52035,0.66,0.259,0.056,0.0906,302,382,142,rate base = Virginia-base estimate
+Public Service Co. of Colorado,XEL,1600000,0.093,11.3,0.5569,0.41,0.244,0.0552,0.0755,238,301,188,Xcel; earned 7.55% ongoing
+Northern States Power-Minnesota,XEL,1218582,0.096,13.2,0.525,0.41,0.257,0.0559,,278,352,289,Xcel; MN 2024 case
+Alabama Power,SO,1550000,0.11,29.36,0.5429,0.33,0.25,0.0555,0.11,869,1100,710,"RSE formula, not litigated ROE; effective/earned ~11%"
+Appalachian Power,AEP,1100000,0.0975,13.04,0.482,0.55,0.277,0.0569,0.075,255,323,294,AEP; VA/WV
+AEP Ohio (Ohio Power),AEP,1500000,0.097,8.22,0.544,0.55,0.249,0.0555,0.101,186,235,157,AEP; distribution 9.70%
+Indiana Michigan Power,AEP,600000,0.0985,6.56,0.512,0.55,0.263,0.0561,0.1,142,180,300,AEP; IN/MI
+Public Service Co. of Oklahoma,AEP,578000,0.095,7.98,0.511,0.55,0.263,0.0562,0.072,158,200,347,AEP; OK 2023 settlement
+Southwestern Electric Power (SWEPCO),AEP,548000,0.095,10.5,0.49,0.55,0.273,0.0567,0.079,197,250,456,AEP; multi-state ~9.5%
+We Energies (Wisconsin Electric),WEC,1175000,0.098,6.7,0.53,0.46,0.255,0.0558,,150,190,162,PSCW 2024 order
+Ameren Illinois,AEE,1200000,0.0872,4.2,0.5,0.48,0.269,0.0564,,65,82,68,ICC MYRP; low auth ROE 8.72%
+Idaho Power,IDA,649000,0.096,4.9,0.51,0.48,0.264,0.0562,0.091,99,126,194,IPUC 2025 settlement
+Entergy Arkansas,ETR,735000,0.0975,10.3,0.47,0.49,0.284,0.0572,0.0771,195,247,336,FRP; earned 7.71% — under-earned
+Entergy Louisiana,ETR,1100000,0.095,14.3,0.4951,0.49,0.271,0.0565,0.0833,272,345,313,LPSC FRP; earned 8.33% — under-earned
+Public Service Co. of New Mexico,TXNM,550000,0.0945,3.0,0.51,0.17,0.264,0.0562,,59,74,135,PNM; market beta 0.17 depressed by pending acquisition

@@ -68,16 +68,26 @@
   <div class="sub">What the law says a utility should earn for its risk — versus what it's allowed to charge you.</div>
   <p class="lede">The governing legal standard (<i>Bluefield</i> 1923, <i>Hope</i> 1944) says a utility's return should match the risk it actually bears. These are monopolies with captive customers — unusually low-risk — yet regulators grant returns set for a far riskier business. This tool measures the gap, and what it costs. <b>Investor-owned utilities only</b> (municipals and co-ops don't earn a set return). Every figure is sourced; the numbers move when you change the assumptions.</p>
 
-  <div class="panel">
-    <div class="calc" style="margin-top:0;margin-bottom:16px">
-      <b>First, the three numbers this tool compares.</b> A utility earns a profit rate — its <b>return on equity (ROE)</b> — on the shareholder money invested in the grid. There are three versions of it:
-      <ul style="margin:8px 0;padding-left:20px">
-        <li><b>Authorized ROE</b> — the profit rate the state regulator <i>allows</i> the utility to charge for. (Usually ~9.5–10%.)</li>
-        <li><b>Risk-justified ROE</b> — what that profit rate <i>should</i> be, given how little risk a monopoly with captive customers actually runs. This is the standard the law sets (<i>Bluefield</i>/<i>Hope</i>): match the return to the risk.</li>
+  <div class="panel primer">
+    <details open>
+      <summary>Start here — what these terms mean</summary>
+      <p><b>A utility is a monopoly.</b> One company owns the poles and wires; you can't shop for another. So a state commission decides what it's allowed to charge.</p>
+      <p><b>The "regulatory compact."</b> The utility invests billions in the grid; in return, regulators let it recover its costs and earn a profit. This so-called compact is where the fight over how much profit is fair plays out.</p>
+      <p><b>Rate base &amp; ROE.</b> The utility earns a profit rate — its <b>return on equity (ROE)</b> — on the shareholder money invested in the grid (its "rate base"). Roughly, yearly profit &asymp; the equity share of the rate base &times; ROE. Because it multiplies a multibillion-dollar rate base, a tenth of a percentage point is millions of dollars a year — on your bill.</p>
+      <p><b>You also pay the tax on their profit.</b> That return is taxed, and customers fund the tax — so a 9.7% return actually costs about 12% on your bill. The tool includes this gross-up in its "bill impact" figures, and separately shows the smaller after-tax amount shareholders keep.</p>
+      <p><b>Three versions of that ROE — the whole tool compares them:</b></p>
+      <ul>
+        <li><b>Authorized ROE</b> — what the regulator <i>allows</i> the utility to charge for (~9.5–10%).</li>
+        <li><b>Risk-justified ROE</b> — what it <i>should</i> be, given how little risk a monopoly with captive customers actually runs. The law's standard (<i>Bluefield</i>/<i>Hope</i>): match the return to the risk.</li>
         <li><b>Earned ROE</b> — what the utility <i>actually</i> made.</li>
       </ul>
-      So the two views below: <b>Authorized vs. risk-justified</b> asks whether the allowed profit is higher than the utility's low risk deserves — that's the core question, and the gap is the "over-earning." <b>Earned vs. authorized</b> asks whether the utility collected even more than it was allowed. New to this? Open <b>"How this works"</b> lower down for the 90-second version.
-    </div>
+      <p><b>Beta — the one genuinely new word here.</b> Beta is simply a number for how risky the market thinks a company is, measured by how much its stock price swings compared with the whole stock market. The market overall is defined as <b>1.0</b>: a beta below 1 means <i>safer</i> than average, above 1 means riskier. Utilities are very safe, so their betas are low — roughly <b>0.2 to 0.7</b>. Why it matters: the riskier a business, the higher the return investors deserve — so a <i>low</i> beta means a <i>low</i> deserved return. Beta is the dial that turns "how risky is this utility?" into "what return does it deserve?"</p>
+      <p><b>The two views in the tool.</b> <b>Authorized vs. risk-justified</b> asks whether the allowed profit is higher than the low risk deserves — the gap is the "over-earning," and it's what lands on your bill. <b>Earned vs. authorized</b> asks whether the utility beat the return it was authorized — a performance check, not a bill impact.</p>
+      <p><b>The catch.</b> A monopoly with captive customers is unusually safe, and safe should mean low returns. This tool measures the gap between the return utilities are granted and what their real, low risk would justify — in dollars, per customer.</p>
+    </details>
+  </div>
+
+  <div class="panel">
     <div class="row controls">
       <div>
         <label>View</label>
@@ -118,6 +128,11 @@
         <div class="note">Damodaran unlevered utility beta: <span class="sval" id="ubv"></span></div>
         <input type="range" id="ub" min="0.08" max="0.35" step="0.01" value="0.15">
         <div class="note"><b>What it is:</b> the risk of a debt-free regulated utility (<a href="https://pages.stern.nyu.edu/~adamodar/New_Home_Page/datafile/Betas.html" target="_blank" rel="noopener">Damodaran, Jan 2026</a>, 0.15). Only used in <b>Damodaran mode</b>.</div>
+      </div>
+      <div class="slider">
+        <div class="note">Corporate tax rate: <span class="sval" id="taxv"></span></div>
+        <input type="range" id="tax" min="15" max="30" step="1" value="21">
+        <div class="note"><b>Why it's here:</b> customers also fund the income tax on the utility's profit, so a return costs more on the bill than shareholders receive (a 9.7% return ≈ 12% pre-tax). 21% is federal; add state corporate tax for a combined rate.</div>
       </div>
     </div>
     <div class="note" style="margin-top:10px"><b>Risk-justified ROE = risk-free rate + (beta &times; equity risk premium).</b> Because utilities are low-risk (a beta far below the market's 1.0), the return the law says they deserve is low — that's the number this tool checks the authorized return against.</div>
@@ -178,16 +193,6 @@
     </div>
   </div>
 
-  <div class="panel primer">
-    <details>
-      <summary>How this works (plain language)</summary>
-      <p><b>A utility is a monopoly.</b> One company owns the poles and wires; you can't shop for another. So a state commission sets what it can charge.</p>
-      <p><b>The regulatory compact.</b> The utility invests billions in the grid; in return, regulators let it recover its costs and earn a profit. This so-called "regulatory compact" is where the fight over how much profit is fair plays out.</p>
-      <p><b>Rate base &amp; ROE.</b> The utility earns a profit rate — the return on equity, or ROE — on the shareholder money invested in the grid (its "rate base"). Roughly: yearly profit &asymp; equity share of rate base &times; ROE.</p>
-      <p><b>Beta.</b> How risky the market thinks a company is (the whole market = 1.0). Utilities are very low-risk. The tool offers two ways to set it — a debt-free sector figure from Damodaran re-levered per utility, or each utility's own market beta — so a low-risk utility earns a low justified return.</p>
-      <p><b>The catch.</b> A monopoly with captive customers is unusually safe, and safe should mean low returns. This tool measures the gap between the return utilities are granted and what their real, low risk would justify.</p>
-    </details>
-  </div>
 
   <div class="panel">
     <label>What this means — policy implications</label>
@@ -248,6 +253,7 @@ const moneyM=x=>"$"+Math.round(x).toLocaleString()+"M";
 const rf=()=>parseFloat($("rf").value)/100;
 const erp=()=>parseFloat($("erp").value)/100;
 const ubeta=()=>parseFloat($("ub").value);
+const tax=()=>parseFloat($("tax").value)/100;
 
 function betaUsed(u){
   if(bm==="market") return u.betaM;
@@ -259,11 +265,13 @@ function calc(u){
   const rj=rf()+b*erp();
   const gap=u.roe-rj;
   const eqRB=u.rb*u.eq;
-  const oeM=gap*eqRB*1000;
-  const perCust=gap*eqRB*1e9/u.cust;
+  const gu=1/(1-tax());
+  const oeMsh=gap*eqRB*1000;              // after-tax shareholder windfall ($M)
+  const oeM=oeMsh*gu;                     // pre-tax bill impact ($M, incl. the tax customers fund)
+  const perCust=gap*eqRB*1e9/u.cust*gu;   // pre-tax bill impact per customer
   const eDiff=u.earned!=null?u.earned-u.roe:null;
   const eDollarM=u.earned!=null?eDiff*eqRB*1000:null;
-  return {b,rj,gap,eqRB,oeM,perCust,eDiff,eDollarM};
+  return {b,rj,gap,eqRB,oeM,oeMsh,perCust,eDiff,eDollarM};
 }
 
 function fillPicker(){
@@ -276,23 +284,23 @@ function renderHero(){
   if(mode==="A"){
     h.innerHTML=`
       <div><div class="bignum ${c.perCust<0?'neg':''}">${money0(c.perCust)}</div>
-      <div class="bigcap">per customer, per year — the over-earning ${u.name} collects above a risk-justified return</div></div>
+      <div class="bigcap">per customer, per year — what ${u.name}'s customers pay above a risk-justified return (includes the income tax customers fund on the utility's profit)</div></div>
       <div class="break">
-        <div class="kv">Total over-earning<b>${moneyM(c.oeM)}/yr</b></div>
+        <div class="kv">Total bill impact / yr<b>${moneyM(c.oeM)}</b></div>
+        <div class="kv">Shareholder windfall (after-tax)<b>${moneyM(c.oeMsh)}</b></div>
         <div class="kv">Authorized ROE<b>${pct(u.roe)}</b></div>
         <div class="kv">Risk-justified ROE<b>${pct(c.rj)}</b></div>
-        <div class="kv">Beta used<b>${c.b.toFixed(2)}</b></div>
         <div class="kv">Gap<b>${(c.gap*100).toFixed(2)} pts</b></div>
       </div>`;
   } else {
     const over=c.eDiff>=0;
     h.innerHTML=`
       <div><div class="bignum ${over?'':'neg'}">${over?'+':''}${(c.eDiff*100).toFixed(2)} pts</div>
-      <div class="bigcap">${over?'earned ABOVE':'earned BELOW'} its authorized ROE ${over?'(over-earning its own allowance)':'(under-earning — collected less than allowed)'}</div></div>
+      <div class="bigcap">${over?'earned ABOVE':'earned BELOW'} its authorized ROE ${over?'(more than it was authorized to earn)':'(under-earning — collected less than authorized)'}</div></div>
       <div class="break">
         <div class="kv">Earned ROE<b>${pct(u.earned)}</b></div>
         <div class="kv">Authorized ROE<b>${pct(u.roe)}</b></div>
-        <div class="kv">$ vs. authorized<b>${c.eDollarM>=0?'':'−'}${moneyM(Math.abs(c.eDollarM))}/yr</b></div>
+        <div class="kv">Excess profit vs. authorized<b>${c.eDollarM>=0?'':'−'}${moneyM(Math.abs(c.eDollarM))}/yr</b></div>
       </div>`;
   }
   f.style.display="block";f.textContent=u.note;
@@ -300,7 +308,7 @@ function renderHero(){
 function renderBars(){
   const rows=U.map((u,i)=>({i,u,c:calc(u)}));
   let title,val,fmt;
-  if(mode==="A"){title="Over-earning per customer ($/yr) — bigger bar, bigger premium on your bill";val=r=>r.c.perCust;fmt=v=>money0(v);}
+  if(mode==="A"){title="Bill impact per customer ($/yr, incl. tax) — bigger bar, bigger premium on your bill";val=r=>r.c.perCust;fmt=v=>money0(v);}
   else{title="Earned minus authorized ROE (points) — positive = collects more than allowed";val=r=>r.c.eDiff*100;fmt=v=>(v>=0?'+':'')+v.toFixed(2);}
   $("charttitle").textContent=title;
   const maxAbs=Math.max(...rows.map(r=>Math.abs(val(r))),0.0001);
@@ -312,13 +320,13 @@ function renderBars(){
       <div class="barval">${fmt(v)}</div></div>`;
   }).join("");
   if(mode==="A"){const tot=rows.reduce((s,r)=>s+r.c.oeM,0);
-    $("total").textContent="Total across the eight: "+moneyM(tot)+" per year ("+(bm==="market"?"market betas":"Damodaran re-levered")+"; Georgia Power on an estimated rate base).";}
-  else{$("total").textContent="Note: several utilities under-earn their authorized ROE — the clean over-earning claim is the risk-justified view.";}
+    $("total").textContent="Total bill impact across the utilities: "+moneyM(tot)+" per year, incl. tax gross-up ("+(bm==="market"?"market betas":"Damodaran re-levered")+").";}
+  else{$("total").innerHTML="<b>This view is not the ratepayer overcharge.</b> It compares what the utility actually earned to its <i>authorized</i> return — a performance check, not a bill impact. Rates are built on the authorized return, so ratepayer impact lives in the &ldquo;Authorized vs. risk-justified&rdquo; view. Earning above the authorized return usually reflects cost savings, higher sales, or off-system revenue; several utilities here even earn less than authorized.";}
 }
 function renderTable(){
   const head=mode==="A"
-   ? ["Utility","Customers","Auth ROE","Beta used","Risk-just ROE","Gap","Over-earn ($M/yr)","Per customer"]
-   : ["Utility","Customers","Auth ROE","Earned ROE","Earned − Auth","$ vs auth ($M/yr)"];
+   ? ["Utility","Customers","Auth ROE","Beta used","Risk-just ROE","Gap","Bill impact ($M/yr)","Per customer"]
+   : ["Utility","Customers","Auth ROE","Earned ROE","Earned − Auth","Excess vs. authorized ($M/yr)"];
   let html="<tr>"+head.map(h=>`<th>${h}</th>`).join("")+"</tr>";
   U.forEach((u,i)=>{
     const c=calc(u),s=i===sel?' class="sel"':'';
@@ -337,21 +345,22 @@ function renderBuildout(){
   let sBeta;
   if(bm==="market"){ sBeta=U.reduce((s,u)=>s+u.betaM,0)/U.length; }
   else { const de=(1-esS)/esS; sBeta=ubeta()*(1+(1-TAX)*de); }
-  const rjS=rf()+sBeta*erp(), prem=saR-rjS, eqCap=buildout*elS*esS, oeB=prem*eqCap, perCust=oeB*1e9/(custM*1e6);
+  const rjS=rf()+sBeta*erp(), prem=saR-rjS, eqCap=buildout*elS*esS, gu=1/(1-tax()), oeBsh=prem*eqCap, oeB=oeBsh*gu, perCust=oeB*1e9/(custM*1e6);
   $("bhero").innerHTML=`
-   <div><div class="bignum ${oeB<0?'neg':''}">$${oeB.toFixed(1)}B</div><div class="bigcap">extra profit per year on the buildout, once it's in rates (${bm==='market'?'market beta':'Damodaran'})</div></div>
+   <div><div class="bignum ${oeB<0?'neg':''}">$${oeB.toFixed(1)}B</div><div class="bigcap">extra on customers' bills per year on the buildout, once it's in rates — includes tax (${bm==='market'?'market beta':'Damodaran'})</div></div>
    <div class="break">
      <div class="kv">Per customer / yr<b>$${Math.round(perCust)}</b></div>
+     <div class="kv">Shareholder windfall (after-tax)<b>$${oeBsh.toFixed(1)}B</b></div>
      <div class="kv">Sector authorized ROE<b>${(saR*100).toFixed(2)}%</b></div>
      <div class="kv">Risk-justified ROE<b>${(rjS*100).toFixed(2)}%</b></div>
      <div class="kv">Premium<b>${(prem*100).toFixed(2)} pts</b></div>
-     <div class="kv">New equity funded<b>$${Math.round(eqCap).toLocaleString()}B</b></div>
    </div>`;
 }
 function draw(){
   $("rfv").textContent=(rf()*100).toFixed(1)+"%";
   $("erpv").textContent=(erp()*100).toFixed(1)+"%";
   $("ubv").textContent=ubeta().toFixed(2);
+  $("taxv").textContent=(tax()*100).toFixed(0)+"%";
   $("ub").disabled=(bm==="market");
   $("bmnote").innerHTML = bm==="market"
     ? "<b>Market mode:</b> each utility's own market beta — captures its real perceived risk, including wildfire/climate exposure (Edison 0.67, Dominion 0.66). More honest per-utility, but provider-dependent."
@@ -361,7 +370,7 @@ function draw(){
 function selectIdx(i){sel=i;$("pick").value=i;draw();}
 window.selectIdx=selectIdx;
 $("pick").addEventListener("change",e=>{sel=+e.target.value;draw();});
-["rf","erp","ub","bo","el","es","sa","ic"].forEach(id=>$(id).addEventListener("input",draw));
+["rf","erp","ub","tax","bo","el","es","sa","ic"].forEach(id=>$(id).addEventListener("input",draw));
 document.querySelectorAll("#toggle button").forEach(b=>b.addEventListener("click",()=>{
   document.querySelectorAll("#toggle button").forEach(x=>x.classList.remove("active"));
   b.classList.add("active");mode=b.dataset.mode;draw();
